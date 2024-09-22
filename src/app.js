@@ -2,8 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { MikrotikService } from "./modules/mikrotik/services/mikrotik.service.js";
-import listRoutes from "./modules/listuser/routes/user.routes.js";
-import createRoutes from "./modules/createuser/routes/user.routes.js";
+import userRoutes from "./modules/user/routes/user.routes.js";
 
 const app = express();
 
@@ -64,7 +63,6 @@ app.get("/traffic-by-ip", async (req, res) => {
   }
 });
 
-app.use("/api", listRoutes); // Rutas de usuarios
-app.use("/api", createRoutes); // Rutas de creación de usuarios
+app.use("/api/user", userRoutes); // Rutas de usuarios
 
 export default app;
