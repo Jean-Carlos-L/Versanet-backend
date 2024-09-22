@@ -1,4 +1,4 @@
-import db from "../../config/database.js"; // conexión a la BD
+import db from "../../common/config/mysql.connection.js"; // conexión a la BD
 
 export class UserRepository {
   static async getUsers({ limit, offset, nombre, correo, rol }) {

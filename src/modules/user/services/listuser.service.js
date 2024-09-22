@@ -1,4 +1,4 @@
-import { UserRepository } from "../repositories/user.repository.js";
+import { UserRepository } from "../repositories/createuser.repository.js";
 
 export class UserService {
   static async getUsers({ page, limit, nombre, correo, rol }) {
