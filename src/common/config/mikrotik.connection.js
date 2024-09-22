@@ -15,7 +15,6 @@ export const connection = () =>
       password: MIKROTIK_PASSWORD,
       timeout: 30000, // Ajusta el timeout según sea necesario
     });
-
     // Conexión correcta a la API usando promesas
     conn
       .connect()
