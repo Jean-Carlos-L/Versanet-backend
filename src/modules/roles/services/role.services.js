@@ -1,17 +1,14 @@
-import { RoleRepository} from "../repositories/role.repository.js";
+import { RoleRepository } from "../repositories/role.repository.js";
 import { roleAdapterDTO, roleAdapterEntity } from "../adapters/role.adapter.js";
-import { deleteRole } from "../controllers/role.controller.js";
 
 export class RoleService {
       
      static async createRole(role){
           try {
-            await RoleRepository.createRole(roleAdapterEntity(role));
-            //mandamos un mensaje de exito
-            message("Rol creado con exito");
+                await RoleRepository.createRol(roleAdapterEntity(role));
           } catch (error) {
                 throw new Error("Error al crear el rol");
-          }         
+          }       
      }
     
      static async updateRole(role){

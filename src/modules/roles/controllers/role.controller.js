@@ -2,9 +2,8 @@ import { RoleService } from "../services/role.services.js";
 
 export const createRole = async (req, res) => {
   try {
-    const roleData = req.body; 
-    const newRole = await RoleService.createRole(roleData);
-    return res.status(201).json(newRole);
+    const roleData = await RoleService.createRole(req.body); 
+    return res.status(201).json({ message: "Role created" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

@@ -1,19 +1,18 @@
 import { query } from "../../../common/utils/query.utils.js";
-import {v4} from 'uuid';
 
-class RolRepository {
+export class RoleRepository {
   
     static table= 'roles';
 
     static async createRol(role){
-        //luego probamos lo del v4
-        const sql = `INSERT INTO ${this.table} (id, name) VALUES (?, ?)`;
-        await query(sql, [role.id, role.name]);
+        const sql = `INSERT INTO ${this.table} (id, nombre, descripcion, estado) VALUES (UUID(), ?, ?, ?)`;
+        const params = [role.nombre, role.descripcion, role.estado];
+        await query(sql, params);
     }
 
     static async updateRol(role){
-        const sql = `UPDATE ${this.table} SET name = ? WHERE id = ?`;
-        await query(sql, [role.name, role.id]);
+        const sql = `UPDATE ${this.table} SET nombre = ? WHERE id = ?`;
+        await query(sql, [role.id, role.nombre]);
     }
 
     static async findById(id){

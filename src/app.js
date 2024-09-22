@@ -3,6 +3,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { MikrotikService } from "./modules/mikrotik/services/mikrotik.service.js";
 
+import RoleRoutes from "./modules/roles/routes/role.routes.js";
+
 const app = express();
 
 app.use(
@@ -61,5 +63,8 @@ app.get("/traffic-by-ip", async (req, res) => {
     });
   }
 });
+
+
+app.use("/api/roles", RoleRoutes);
 
 export default app;

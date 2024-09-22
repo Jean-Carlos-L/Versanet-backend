@@ -1,13 +1,17 @@
-export function roleAdapterDTO(rol) {
+export function roleAdapterDTO(role) {
     return {
-        id: rol.id,
-        name: rol.name
+        id: role.id,
+        nombre: role.nombre,
+        descripcion: role.descripcion,
+        estado: role.estado
     }
 }
 
-export const roleAdapterEntity = (rol) => {
+export const roleAdapterEntity = (role) => {
     return {
-        id: rol.id,
-        name: rol.name
+        id: role.id,
+        nombre: role.nombre,
+        descripcion: role.descripcion,
+        estado: role.estado
     }
 }
