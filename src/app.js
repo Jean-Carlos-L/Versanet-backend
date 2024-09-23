@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { MikrotikService } from "./modules/mikrotik/services/mikrotik.service.js";
 
 import RoleRoutes from "./modules/roles/routes/role.routes.js";
+import permissionsRouter from "./modules/permissions/routes/permission.route.js";
 
 const app = express();
 
@@ -17,7 +18,6 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.get("/", async (req, res) => {
-  
   res.json({
     message: "Welcome to the API",
   });
@@ -27,7 +27,7 @@ app.get("/", async (req, res) => {
 app.get("/system-identity", async (req, res) => {
   try {
     const identity = await MikrotikService.getSystemIdentity();
-    
+
     // Devolver el valor al cliente
     res.json(identity);
   } catch (error) {
@@ -41,7 +41,7 @@ app.get("/system-identity", async (req, res) => {
 app.get("/interface-traffic", async (req, res) => {
   try {
     const traffic = await MikrotikService.getInterfaceTraffic();
-    
+
     res.json(traffic);
   } catch (error) {
     console.error("Error in /interface-traffic endpoint: ", error);
@@ -54,7 +54,7 @@ app.get("/interface-traffic", async (req, res) => {
 app.get("/traffic-by-ip", async (req, res) => {
   try {
     const traffic = await MikrotikService.getTrafficByIP();
-    
+
     res.json(traffic);
   } catch (error) {
     console.error("Error in /traffic-by-ip endpoint: ", error);
@@ -64,7 +64,7 @@ app.get("/traffic-by-ip", async (req, res) => {
   }
 });
 
-
 app.use("/api/roles", RoleRoutes);
+app.use("/api/permissions", permissionsRouter);
 
 export default app;
