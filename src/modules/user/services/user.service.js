@@ -1,5 +1,6 @@
 import { UserRepository } from "../repositories/user.repository.js";
 import { userAdapterDTO, userAdapterEntity } from "../adapters/user.adapter.js";
+import { RoleService } from "../../roles/services/role.services.js";
 
 export class UserService {
     // Crear un usuario
@@ -39,6 +40,10 @@ export class UserService {
     static async findAll() {
         try {
             const users = await UserRepository.findAll();
+            const userwithrol = users.map(async user => {
+                const role = await RoleService.findById(user.idRol);
+                return { ...user, role: role };
+            });
             return users.map(user => userAdapterDTO(user));
         } catch (error) {
             throw new Error("Error al obtener los usuarios: " + error.message);
