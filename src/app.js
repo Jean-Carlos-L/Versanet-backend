@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { MikrotikService } from "./modules/mikrotik/services/mikrotik.service.js";
+import userRoutes from "./modules/user/routes/user.routes.js";
 
 import RoleRoutes from "./modules/roles/routes/role.routes.js";
 import permissionsRouter from "./modules/permissions/routes/permission.route.js";
@@ -64,6 +65,7 @@ app.get("/traffic-by-ip", async (req, res) => {
   }
 });
 
+app.use("/api/user", userRoutes);
 app.use("/api/roles", RoleRoutes);
 app.use("/api/permissions", permissionsRouter);
 
