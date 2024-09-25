@@ -1,21 +1,21 @@
 export function userAdapterDTO(user) {
-    return {
-        id: user.id,
-        nombres: user.nombres,
-        correo_electronico: user.correo_electronico,
-        contrasena: user.contrasena,
-        idRol: user.idRol,
-        estado: user.estado
-    };
+  return {
+    id: user.id,
+    name: user.nombres,
+    email: user.correo_electronico,
+    password: user.contrasena,
+    role: user.idRol,
+    status: user.estado,
+  };
 }
 
 export const userAdapterEntity = (user) => {
-    return {
-        id: user.id,
-        nombres: user.name,
-        correo_electronico: user.email,
-        contrasena: user.password,
-        idRol: user.roles,
-        estado: user.status
-    };
-}
+  return {
+    id: user.id,
+    nombres: user.name,
+    correo_electronico: user.email,
+    contrasena: user.password,
+    idRol: user.role,
+    estado: user.status,
+  };
+};
