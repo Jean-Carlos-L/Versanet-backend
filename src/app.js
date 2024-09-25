@@ -65,7 +65,7 @@ app.get("/traffic-by-ip", async (req, res) => {
   }
 });
 
-app.use("/api/user", userRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/roles", RoleRoutes);
 app.use("/api/permissions", permissionsRouter);
 
