@@ -71,6 +71,6 @@ app.use("/api/users", userRoutes);
 app.use("/api/roles", RoleRoutes);
 app.use("/api/permissions", permissionsRouter);
 app.use("/api/plans", planRouter);
-app.use("/api/plan-customers", planCustomerRouter);
+app.use("/api/plans-customers", planCustomerRouter);
 
 export default app;
