@@ -14,9 +14,9 @@ export const planCustomerAdapterDTO = (plan) => {
     },
     customer: {
       id: plan.id,
-      name: plan.nombre,
+      name: plan.nombres,
       document: plan.cedula,
-      email: plan.email,
+      email: plan.correo_electronico,
       phone: plan.telefono,
       address: plan.direccion,
       status: plan.estado,
