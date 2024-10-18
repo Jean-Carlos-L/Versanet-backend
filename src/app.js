@@ -7,6 +7,8 @@ import authRoutes from "./modules/auth/routes/auth.routes.js";
 import RoleRoutes from "./modules/roles/routes/role.routes.js";
 import permissionsRouter from "./modules/permissions/routes/permission.route.js";
 import { authMiddleware } from "./common/core/auth.middleware.js";
+import planRouter from "./modules/plans/routes/plan.route.js";
+import planCustomerRouter from "./modules/plansCustomers/routes/planCustomer.route.js";
 
 const app = express();
 
@@ -72,5 +74,7 @@ app.use(authMiddleware);
 app.use("/api/users", userRoutes);
 app.use("/api/roles", RoleRoutes);
 app.use("/api/permissions", permissionsRouter);
+app.use("/api/plans", planRouter);
+app.use("/api/plans-customers", planCustomerRouter);
 
 export default app;
