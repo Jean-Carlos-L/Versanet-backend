@@ -19,17 +19,18 @@ export class AuthService {
       if (!isValidPassword) {
         throw new Error("Contraseña incorrecta", 401);
       }
-      const token = generateToken({
-        id: userDTO.id,
-        role: userDTO.role,
-      });
-
       const permissions = await RolePermissionRepository.findByRoleIds([
         userDTO.role,
       ]);
       const permissionsDTO = permissions.map((permission) =>
         rolePermissionAdapterDTO(permission)
       );
+
+      const token = generateToken({
+        id: userDTO.id,
+        role: userDTO.role,
+        permissions: permissionsDTO.map((permission) => permission.url),
+      });
 
       return { token, permissions: permissionsDTO };
     } catch (error) {
