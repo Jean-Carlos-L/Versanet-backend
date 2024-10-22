@@ -71,7 +71,7 @@ app.get("/traffic-by-ip", async (req, res) => {
 
 app.use("/api", authRoutes);
 
-//app.use(authMiddleware);
+app.use(authMiddleware);
 app.use("/api/users", userRoutes);
 app.use("/api/roles", RoleRoutes);
 app.use("/api/permissions", permissionsRouter);
