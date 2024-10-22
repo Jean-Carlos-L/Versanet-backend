@@ -1,5 +1,5 @@
-import {CustomerRepository} from "../repositories/customer.repository.js";
-import {customerAdapterDTO, customerAdapterEntity} from "../adapters/customer.adapter.js";
+import {CustomerRepository} from "../repositories/costumer.repository.js";
+import {customerAdapterDTO, customerAdapterEntity} from "../adapters/costumer.adapter.js";
 
 export class CustomerService{
 
@@ -58,11 +58,8 @@ export class CustomerService{
             const customers = await CustomerRepository.findByFilter(filter);
             return customers.map(customerAdapterDTO);
         } catch (error) {
-            console.error("Error al obtener los clientes", error);
-            throw new Error("Error al obtener los clientes");
+            console.error("aaaaa", error);
+            throw new Error("aaaaa");
         }
     }
-
-
-
 }

@@ -61,11 +61,13 @@ export const getCustomersByFilter = async (req, res) => {
     try {
         const {filter} = req.query;
         const customers = await CustomerService.findByFilter(filter);
+        
         return res.status(200).json({
             message: "Cliente encontrado con éxito",
             data: customers
         });
     } catch (error) {
+        console.log("aqui estamos en el catch");
         return res.status(500).json({message: error.message});
     }
 };

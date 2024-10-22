@@ -8,7 +8,7 @@ export class CustomerRepository {
         const newId = await query("SELECT UUID() as id");
         const id = newId[0].id;
         const sql = `INSERT INTO ${this.table} (id, nombres,cedula, correo_electronico, telefono, direccion, estado) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-        const params = [id, customer.nombres, customer.cedula, customer.correo_electronico, customer.telefono, customer.direccion, 1];
+        const params = [id, customer.nombres, customer.cedula, customer.correo_electronico, customer.telefono, customer.direccion, customer.estado];
         await query(sql, params);
         return id;
     }

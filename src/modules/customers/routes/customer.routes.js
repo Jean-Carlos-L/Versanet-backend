@@ -2,17 +2,23 @@ import express from "express";
 import {
   createCustomer,
   updateCustomer,
-  detailsCustomer,
-  listCustomer,
+  getCustomerById,
+  getCustomers,
   deleteCustomer,
-} from "../controllers/customer.controller.js";
-import { authorize } from "../../../common/core/role.middleware.js";
+  getCustomersByFilter
+} from "../controllers/costumer.controller.js";
+
+
+
 
 const router = express.Router();
 
-router.post("/", authorize(["/customers/create"]), createCustomer);
-router.put("/:id", authorize(["/customers/update"]), updateCustomer);
-router.get("/", authorize(["/customers/view"]), listCustomer);
-router.get("/:id", authorize(["/customers/view"]), detailsCustomer);
-router.delete("/delete/:id", authorize(["/customers/delete"]), deleteCustomer);
-router.put("/filter", authorize(["/customers/view"]), getCustomersByFilter);
+router.post("/", createCustomer);
+router.put("/:id", updateCustomer);
+router.get("/filter", getCustomersByFilter);
+router.get("/:id", getCustomerById);
+router.get("/",   getCustomers);
+router.delete("/delete/:id", deleteCustomer);
+
+
+export default router;
