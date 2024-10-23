@@ -2,6 +2,12 @@ import {CustomerService} from '../services/customer.services.js';
 
 export const createCustomer = async (req, res) => {
     try {
+        const { nombres, cedula, correo_electronico, telefono, direccion, estado } = req.body;
+
+        if (!nombres || !cedula || !correo_electronico || !telefono || !direccion || estado === undefined) {
+            return res.status(400).json({ message: "Todos los campos son obligatorios" });
+        }
+
         const customer = await CustomerService.create(req.body);
         return res.status(201).json({message: "Cliente creado con éxito"});
     } catch (error) {
@@ -67,7 +73,6 @@ export const getCustomersByFilter = async (req, res) => {
             data: customers
         });
     } catch (error) {
-        console.log("aqui estamos en el catch");
         return res.status(500).json({message: error.message});
     }
 };
