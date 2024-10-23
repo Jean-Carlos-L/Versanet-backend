@@ -13,6 +13,18 @@ export const getPlansCustomers = async (req, res) => {
   }
 };
 
+export const getCountPlansCustomers = async (req, res) => {
+  try {
+    const total = await PlanCustomerService.countPlansCustomers(req.query);
+    res.status(200).json({
+      data: total,
+      message: "Total plans customers",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const enablePlan = async (req, res) => {
   try {
     const rows = await PlanCustomerService.enablePlan(req.params.id);
