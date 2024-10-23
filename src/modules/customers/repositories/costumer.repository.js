@@ -36,4 +36,10 @@ export class CustomerRepository {
         return await query(sql, [`%${filter}%`, `%${filter}%`, `%${filter}%`]);
     }
 
+    static async findByCedulaOrEmail(cedula, correo_electronico) {
+        const sql = `SELECT * FROM ${this.table} WHERE cedula = ? OR correo_electronico = ?`;
+        const result = await query(sql, [cedula, correo_electronico]);
+        return result;
+    }
+
 }
