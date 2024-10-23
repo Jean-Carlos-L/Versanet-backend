@@ -6,15 +6,16 @@ import {
   enablePlan,
   getCountPlansCustomers,
 } from "../controllers/planCustomer.controller.js";
+import { authorize } from "../../../common/core/role.middleware.js";
 
 const router = express.Router();
 
-router.get("/", getPlansCustomers);
+router.get("/", authorize(["/plans-customers/view"]), getPlansCustomers);
 
 router.get("/count", getCountPlansCustomers);
 
-router.put("/enable/:id", enablePlan);
+router.put("/enable/:id", authorize(["/plans-customers/update"]), enablePlan);
 
-router.put("/disable/:id", disablePlan);
+router.put("/disable/:id", authorize(["/plans-customers/update"]), disablePlan);
 
 export default router;

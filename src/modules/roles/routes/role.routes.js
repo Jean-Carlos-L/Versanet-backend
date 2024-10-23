@@ -6,17 +6,18 @@ import {
   getRoles,
   deleteRole,
 } from "../controllers/role.controller.js";
+import { authorize } from "../../../common/core/role.middleware.js";
 
 const router = express.Router();
 
-router.get("/", getRoles);
+router.get("/", authorize(["/roles/view"]), getRoles);
 
-router.get("/:id", getRoleById);
+router.get("/:id", authorize(["/roles/view"]), getRoleById);
 
-router.post("/", createRole);
+router.post("/", authorize(["/roles/create"]), createRole);
 
-router.put("/:id", updateRole);
+router.put("/:id", authorize(["/roles/update"]), updateRole);
 
-router.delete("/:id", deleteRole);
+router.delete("/:id", authorize(["/roles/delete"]), deleteRole);
 
 export default router;

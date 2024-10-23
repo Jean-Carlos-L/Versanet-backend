@@ -1,11 +1,12 @@
 import express from "express";
 
 import { getPlans, getPlanById } from "../controllers/plan.controller.js";
+import { authorize } from "../../../common/core/role.middleware.js";
 
 const router = express.Router();
 
-router.get("/", getPlans);
+router.get("/", authorize(["/plans/view"]), getPlans);
 
-router.get("/:id", getPlanById);
+router.get("/:id", authorize(["/plans/view"]), getPlanById);
 
 export default router;

@@ -40,6 +40,12 @@ export class UserRepository {
     return await query(sql, [id]);
   }
 
+  // Función para buscar un usuario por su correo electrónico
+  static async findByEmail(email) {
+    const sql = `SELECT * FROM usuarios WHERE correo_electronico = ? AND estado = 1`;
+    return await query(sql, [email]);
+  }
+
   // Función para buscar todos los usuarios
   static async findAll() {
     const sql = `SELECT * FROM usuarios WHERE estado = 1`;

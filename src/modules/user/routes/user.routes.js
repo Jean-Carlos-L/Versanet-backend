@@ -1,16 +1,23 @@
 import express from "express";
-import { createUser, updateUser, detailsUser, listUser, deleteUser } from "../controllers/user.controller.js";
+import {
+  createUser,
+  updateUser,
+  detailsUser,
+  listUser,
+  deleteUser,
+} from "../controllers/user.controller.js";
+import { authorize } from "../../../common/core/role.middleware.js";
 
 const router = express.Router();
 
-router.post("/", createUser);
+router.post("/", authorize(["/users/create"]), createUser);
 
-router.put("/:id", updateUser);
+router.put("/:id", authorize(["/users/update"]), updateUser);
 
-router.get("/", listUser);
+router.get("/", authorize(["/users/view"]), listUser);
 
-router.get("/:id", detailsUser);
+router.get("/:id", authorize(["/users/view"]), detailsUser);
 
-router.delete("/delete/:id", deleteUser);
+router.delete("/delete/:id", authorize(["/users/delete"]), deleteUser);
 
 export default router;

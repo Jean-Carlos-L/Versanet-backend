@@ -3,11 +3,13 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { MikrotikService } from "./modules/mikrotik/services/mikrotik.service.js";
 import userRoutes from "./modules/user/routes/user.routes.js";
-
+import authRoutes from "./modules/auth/routes/auth.routes.js";
 import RoleRoutes from "./modules/roles/routes/role.routes.js";
 import permissionsRouter from "./modules/permissions/routes/permission.route.js";
+import { authMiddleware } from "./common/core/auth.middleware.js";
 import planRouter from "./modules/plans/routes/plan.route.js";
 import planCustomerRouter from "./modules/plansCustomers/routes/planCustomer.route.js";
+import customerRouter from "./modules/customers/routes/customer.routes.js";
 
 const app = express();
 
@@ -67,10 +69,14 @@ app.get("/traffic-by-ip", async (req, res) => {
   }
 });
 
+app.use("/api", authRoutes);
+
+app.use(authMiddleware);
 app.use("/api/users", userRoutes);
 app.use("/api/roles", RoleRoutes);
 app.use("/api/permissions", permissionsRouter);
 app.use("/api/plans", planRouter);
 app.use("/api/plans-customers", planCustomerRouter);
+app.use("/api/customers", customerRouter);
 
 export default app;
