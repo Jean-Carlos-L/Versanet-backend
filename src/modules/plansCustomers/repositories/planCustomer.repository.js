@@ -4,7 +4,15 @@ export class PlanCustomerRepository {
   static table = "clientes_planes";
 
   static async findAll(filters) {
-    const { page = 1, pageSize = 50, status } = filters;
+    const {
+      page = 1,
+      pageSize = 50,
+      status,
+      plan,
+      customer,
+      startDate,
+      endDate,
+    } = filters;
     let queryText = `SELECT 
          c.*,
          cp.id AS cliente_plan_id,
@@ -25,8 +33,30 @@ export class PlanCustomerRepository {
          cp.idPlan = p.id
       WHERE 1 = 1`;
 
+    const params = [];
     if (status) {
-      queryText += ` AND cp.estado = '${status}'`;
+      queryText += ` AND cp.estado = ?`;
+      params.push(status);
+    }
+
+    if (plan) {
+      queryText += ` AND p.descripcion LIKE ?`;
+      params.push(`%${plan}%`);
+    }
+
+    if (customer) {
+      queryText += ` AND (c.nombres LIKE ? OR c.cedula LIKE ? OR c.correo_electronico LIKE ?)`;
+      params.push(`%${customer}%`, `%${customer}%`, `%${customer}%`);
+    }
+
+    if (startDate) {
+      queryText += ` AND cp.fecha_inicio = ?`;
+      params.push(startDate);
+    }
+
+    if (endDate) {
+      queryText += ` AND cp.fecha_fin = ?`;
+      params.push(endDate);
     }
 
     queryText += ` ORDER BY cp.fecha_creacion DESC`;
@@ -35,8 +65,50 @@ export class PlanCustomerRepository {
       queryText += ` LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}`;
     }
 
-    const rows = await query(queryText);
+    const rows = await query(queryText, params);
     return rows;
+  }
+
+  static async countPlansCustomers(filters) {
+    const { status, plan, customer, startDate, endDate } = filters;
+    let queryText = `SELECT 
+          COUNT(*) AS total
+        FROM 
+           clientes c 
+        INNER JOIN ${this.table} cp ON 
+           c.id = cp.idCliente 
+        INNER JOIN planes p ON 
+           cp.idPlan = p.id
+        WHERE 1 = 1`;
+
+    const params = [];
+    if (status) {
+      queryText += ` AND cp.estado = ?`;
+      params.push(status);
+    }
+
+    if (plan) {
+      queryText += ` AND p.descripcion LIKE ?`;
+      params.push(`%${plan}%`);
+    }
+
+    if (customer) {
+      queryText += ` AND (c.nombres LIKE ? OR c.cedula LIKE ? OR c.correo_electronico LIKE ?)`;
+      params.push(`%${customer}%`, `%${customer}%`, `%${customer}%`);
+    }
+
+    if (startDate) {
+      queryText += ` AND cp.fecha_inicio = ?`;
+      params.push(startDate);
+    }
+
+    if (endDate) {
+      queryText += ` AND cp.fecha_fin = ?`;
+      params.push(endDate);
+    }
+
+    const rows = await query(queryText, params);
+    return rows[0].total;
   }
 
   static async enablePlan(id) {

@@ -12,6 +12,16 @@ export class PlanCustomerService {
     }
   }
 
+  static async countPlansCustomers(filters) {
+    try {
+      const total = await PlanCustomerRepository.countPlansCustomers(filters);
+      return total;
+    } catch (error) {
+      console.error("PlanCustomerService - countPlansCustomers: ", error);
+      throw new Error(error.message);
+    }
+  }
+
   static async enablePlan(id) {
     try {
       const rows = await PlanCustomerRepository.enablePlan(id);
