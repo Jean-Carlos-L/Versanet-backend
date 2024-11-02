@@ -14,12 +14,12 @@ import { authorize } from "../../../common/core/role.middleware.js";
 
 const router = express.Router();
 
-router.post("/", authorize(["/customers/create"]) , createCustomer);
-router.put("/:id", authorize(["/customers/update"]),updateCustomer);
-router.get("/filter", authorize(["/customers/view"]), getCustomersByFilter);
-router.get("/:id",authorize(["/customers/view"]), getCustomerById);
-router.get("/",authorize(["/customers/view"]),  getCustomers);
-router.delete("/delete/:id" , authorize(["/customers/delete"]), deleteCustomer);
+router.post("/", createCustomer);
+router.put("/:id", updateCustomer);
+router.get("/filter", getCustomersByFilter);
+router.get("/:id", getCustomerById);
+router.get("/",  getCustomers);
+router.delete("/delete/:id" , deleteCustomer);
 
 
 export default router;

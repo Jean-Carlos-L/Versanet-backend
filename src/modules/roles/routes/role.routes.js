@@ -10,7 +10,7 @@ import { authorize } from "../../../common/core/role.middleware.js";
 
 const router = express.Router();
 
-router.get("/", authorize(["/roles/view"]), getRoles);
+router.get("/", getRoles);
 
 router.get("/:id", authorize(["/roles/view"]), getRoleById);
 

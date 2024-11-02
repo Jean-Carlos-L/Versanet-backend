@@ -13,8 +13,8 @@ export class CustomerRepository {
         return id;
     }
     static async update(id, customer) {
-        const sql = `UPDATE ${this.table} SET nombres = ?, correo_electronico = ?, telefono = ?, direccion = ?, estado = ? WHERE id = ?`;
-        await query(sql, [customer.nombres, customer.correo_electronico, customer.telefono, customer.direccion, customer.estado, id]);
+        const sql = `UPDATE ${this.table} SET nombres = ?, cedula =?,correo_electronico = ?, telefono = ?, direccion = ?, estado = ? WHERE id = ?`;
+        await query(sql, [customer.nombres, customer.cedula, customer.correo_electronico, customer.telefono, customer.direccion, customer.estado, id]);
     }
     static async findById(id) {
         const sql = `SELECT * FROM ${this.table} WHERE id = ?`;
@@ -27,9 +27,9 @@ export class CustomerRepository {
     }
 
     static async delete(id) {
-        const sql = `UPDATE ${this.table} SET estado = 0 WHERE id = ?`;
+        const sql = `DELETE FROM ${this.table} WHERE id = ?`;
         await query(sql, [id]);
-    }
+    }   
 
     static async findByFilter(filter) {
         const sql = `SELECT * FROM ${this.table} WHERE nombres LIKE ? OR correo_electronico LIKE ? OR cedula LIKE ?`;

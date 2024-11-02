@@ -2,12 +2,6 @@ import {CustomerService} from '../services/customer.services.js';
 
 export const createCustomer = async (req, res) => {
     try {
-        const { nombres, cedula, correo_electronico, telefono, direccion, estado } = req.body;
-
-        if (!nombres || !cedula || !correo_electronico || !telefono || !direccion || estado === undefined) {
-            return res.status(400).json({ message: "Todos los campos son obligatorios" });
-        }
-
         const customer = await CustomerService.create(req.body);
         return res.status(201).json({message: "Cliente creado con éxito"});
     } catch (error) {
@@ -17,10 +11,10 @@ export const createCustomer = async (req, res) => {
 
 export const updateCustomer = async (req, res) => {
     try {
-        const {id} = req.params;
+        const id = req.params.id;
         const customerData = req.body;
         await CustomerService.update(id, customerData);
-        return res.status(200).json({message: "Cliente actualizado con éxito"});
+        return res.status(200).json({message: "Cliente actualizado con éxito", data: customerData});
     } catch (error) {
         return res.status(500).json({message: error.message});
     }
