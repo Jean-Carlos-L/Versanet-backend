@@ -3,22 +3,22 @@ import {customerAdapterDTO, customerAdapterEntity} from "../adapters/costumer.ad
 
 export class CustomerService{
 
-    static async create(customer){
+    static async create(customer) {
         try {
-            const customerExists = await CustomerRepository.findByCedulaOrEmail(customer.cedula, customer.correo_electronico);
-            if(!customerExists.length){
+            const customerExists = await CustomerRepository.findByCedulaOrEmail(customer.cedula, customer.email);
+            if (customerExists.length === 0) {
                 return await CustomerRepository.create(customerAdapterEntity(customer));
             }
-            throw new Error("La cedula o el correo electrónico ya se encuentra registrado");
+            throw new Error("La cédula o el correo electrónico ya se encuentra registrado");
         } catch (error) {
-            console.error("Error al crear el cliente", error.message);
+            console.error("Error al crear el cliente:", error.message);
             throw new Error(error.message);
         }
     }
 
     static async update(id, customer){
         try {
-            const existingCustomer = await CustomerRepository.findByCedulaOrEmail(customer.cedula, customer.correo_electronico);
+            const existingCustomer = await CustomerRepository.findByCedulaOrEmail(customer.cedula, customer.email);
             if(existingCustomer.length && existingCustomer[0].id !== id){
                 throw new Error("La cedula o el correo electrónico ya se encuentra registrado");
             }

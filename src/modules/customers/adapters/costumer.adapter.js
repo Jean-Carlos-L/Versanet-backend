@@ -1,22 +1,22 @@
 export function customerAdapterDTO(costumer) {
   return {
     id: costumer.id,
-    nombres: costumer.nombres,
+    names: costumer.nombres,
     cedula: costumer.cedula,
-    correo_electronico: costumer.correo_electronico,
-    telefono: costumer.telefono,
-    direccion: costumer.direccion,
-    estado: costumer.estado,
+    email: costumer.correo_electronico,
+    phone: costumer.telefono,
+    address: costumer.direccion,
+    status: costumer.estado,
   };
 }
 export const customerAdapterEntity = (costumer) => {
     return {
         id: costumer.id,
-        nombres: costumer.nombres,
+        nombres: costumer.names,
         cedula: costumer.cedula,
-        correo_electronico: costumer.correo_electronico,
-        telefono: costumer.telefono,
-        direccion: costumer.direccion,
-        estado: costumer.estado,
+        correo_electronico: costumer.email,
+        telefono: costumer.phone,
+        direccion: costumer.address,
+        estado: costumer.status,
     };
 };

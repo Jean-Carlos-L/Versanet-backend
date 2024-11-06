@@ -5,6 +5,6 @@ import { authorize } from "../../../common/core/role.middleware.js";
 
 const router = express.Router();
 
-router.get("/", authorize(["/permissions/view"]), getPermissions);
+router.get("/",  getPermissions);
 
 export default router;
