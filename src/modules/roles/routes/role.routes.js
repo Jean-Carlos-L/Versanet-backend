@@ -6,18 +6,20 @@ import {
   getRoles,
   deleteRole,
 } from "../controllers/role.controller.js";
-import { authorize } from "../../../common/core/role.middleware.js";
+import { authMiddleware } from "../../../common/core/auth.middleware.js";
 
 const router = express.Router();
 
+router.use(authMiddleware);
+
 router.get("/", getRoles);
 
-router.get("/:id", authorize(["/roles/view"]), getRoleById);
+router.get("/:id", getRoleById);
 
-router.post("/", authorize(["/roles/create"]), createRole);
+router.post("/", createRole);
 
-router.put("/:id", authorize(["/roles/update"]), updateRole);
+router.put("/:id", updateRole);
 
-router.delete("/:id", authorize(["/roles/delete"]), deleteRole);
+router.delete("/:id", deleteRole);
 
 export default router;
