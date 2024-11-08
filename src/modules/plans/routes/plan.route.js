@@ -1,12 +1,14 @@
 import express from "express";
 
 import { getPlans, getPlanById } from "../controllers/plan.controller.js";
-import { authorize } from "../../../common/core/role.middleware.js";
+import { authMiddleware } from "../../../common/core/auth.middleware.js";
 
 const router = express.Router();
 
-router.get("/", authorize(["/plans/view"]), getPlans);
+router.use(authMiddleware);
 
-router.get("/:id", authorize(["/plans/view"]), getPlanById);
+router.get("/", getPlans);
+
+router.get("/:id", getPlanById);
 
 export default router;
