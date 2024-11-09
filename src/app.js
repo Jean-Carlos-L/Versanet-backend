@@ -11,6 +11,7 @@ import planRouter from "./modules/plans/routes/plan.route.js";
 import planCustomerRouter from "./modules/plansCustomers/routes/planCustomer.route.js";
 import customerRouter from "./modules/customers/routes/customer.routes.js";
 import { authorize } from "./common/core/role.middleware.js";
+import { statsRoutes } from "./modules/stats/routes/stats.route.js";
 
 const app = express();
 
@@ -79,5 +80,6 @@ app.use("/api/permissions" , permissionsRouter);
 app.use("/api/plans", planRouter);
 app.use("/api/plans-customers", planCustomerRouter);
 app.use("/api/customers", customerRouter);
+app.use("/api/stats", statsRoutes);
 
 export default app;
