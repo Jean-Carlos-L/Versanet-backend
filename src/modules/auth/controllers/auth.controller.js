@@ -3,9 +3,8 @@ import { AuthService } from "../services/auth.service.js";
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const { token, user } = await AuthService.login(email, password);
+    const { user, token } = await AuthService.login(email, password);
 
-    // Configurar la cookie con el token
     res.cookie("token", token, {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
@@ -14,7 +13,7 @@ export const login = async (req, res) => {
 
     return res
       .status(200)
-      .json({ message: "Autenticación exitosa", token, user });
+      .json({ message: "Autenticación exitosa", data: user });
   } catch (error) {
     return res.status(401).json({ message: error.message });
   }

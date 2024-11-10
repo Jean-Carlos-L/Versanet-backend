@@ -32,7 +32,15 @@ export class AuthService {
         permissions: permissionsDTO.map((permission) => permission.url),
       });
 
-      return { token, permissions: permissionsDTO };
+      return {
+        user: {
+          id: userDTO.id,
+          name: userDTO.name,
+          email: userDTO.email,
+          permissions: permissionsDTO.map((permission) => permission.url),
+        },
+        token,
+      };
     } catch (error) {
       throw new Error("Error al iniciar sesión: " + error.message);
     }
