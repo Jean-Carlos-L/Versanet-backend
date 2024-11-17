@@ -41,4 +41,48 @@ export class PlanCustomerService {
       throw new Error(error.message);
     }
   }
+
+  static async create(planCustomer) {
+    try {
+      const planCustomerExists = await PlanCustomerRepository.findByStaticIpOrMac(planCustomer.staticIp, planCustomer.mac);
+      if (planCustomerExists.length) {
+        throw new Error("La dirección IP o MAC ya se encuentra registrada");
+      }
+      return await PlanCustomerRepository.create(planCustomer);
+
+
+    } catch (error) {
+      console.error("PlanCustomerService - create: ", error);
+      throw new Error(error.message);
+    }
+  }
+
+  static async update(id, planCustomer) {
+    try {
+      await PlanCustomerRepository.update(id, planCustomer);
+    } catch (error) {
+      console.error("PlanCustomerService - update: ", error);
+      throw new Error(error.message);
+    }
+  }
+
+  static async findById(id) {
+    try {
+      const planCustomer = await PlanCustomerRepository.findById(id);
+      return planCustomerAdapterDTO(planCustomer);
+    } catch (error) {
+      console.error("PlanCustomerService - findById: ", error);
+      throw new Error(error.message);
+    }
+  }
+  
+
+  static async delete(id) {
+    try {
+      await PlanCustomerRepository.delete(id);
+    } catch (error) {
+      console.error("PlanCustomerService - delete: ", error);
+      throw new Error(error.message);
+    }
+  }
 }
