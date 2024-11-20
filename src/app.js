@@ -10,6 +10,7 @@ import { authMiddleware } from "./common/core/auth.middleware.js";
 import planRouter from "./modules/plans/routes/plan.route.js";
 import planCustomerRouter from "./modules/plansCustomers/routes/planCustomer.route.js";
 import customerRouter from "./modules/customers/routes/customer.routes.js";
+import historyRouter from "./modules/history/routes/history.routes.js";
 import { authorize } from "./common/core/role.middleware.js";
 
 const app = express();
@@ -72,12 +73,12 @@ app.get("/traffic-by-ip", async (req, res) => {
 
 app.use("/api", authRoutes);
 
-//app.use(authMiddleware);
+app.use(authMiddleware);
 app.use("/api/users", userRoutes);
 app.use("/api/roles", RoleRoutes);
-app.use("/api/permissions" , permissionsRouter);
+app.use("/api/permissions", permissionsRouter);
 app.use("/api/plans", planRouter);
 app.use("/api/plans-customers", planCustomerRouter);
 app.use("/api/customers", customerRouter);
-
+app.use("/api/history", historyRouter);
 export default app;
