@@ -124,4 +124,70 @@ export class PlanCustomerRepository {
     const rows = await query(queryText, values);
     return rows;
   }
+
+  static async create(planCustomer) {
+    const newId = await query("SELECT UUID() as id");
+    const id = newId[0].id;
+    const sql = `INSERT INTO ${this.table} (id,idCliente, idPlan, estado, ip_estatica, mac_antena, fecha_inicio, fecha_fin) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    const params = [
+      id,
+      planCustomer.customer.id,
+      planCustomer.plan.id,
+      planCustomer.status,
+      planCustomer.staticIp,
+      planCustomer.mac,
+      planCustomer.startDate,
+      planCustomer.endDate,
+    ];
+    await query(sql, params);
+    return id;
+  }
+
+  static async update(id, planCustomer) {
+    const sql = `UPDATE ${this.table} SET idCliente=?, idPlan=?,estado = ?, ip_estatica = ?, mac_antena = ?, fecha_inicio = ?, fecha_fin = ? WHERE id = ?`;
+    await query(sql, [
+      planCustomer.customer.id,
+      planCustomer.plan.id,
+      planCustomer.status,
+      planCustomer.staticIp,
+      planCustomer.mac,
+      planCustomer.startDate,
+      planCustomer.endDate,
+      id,
+    ]);
+  }
+
+  static async findById(id) {
+    const sql = `SELECT c.*,
+         cp.id AS cliente_plan_id,
+         cp.estado AS cliente_plan_estado,
+         cp.ip_estatica,
+         cp.mac_antena,
+         cp.fecha_inicio,
+         cp.fecha_fin,
+         p.id AS plan_id,
+         p.descripcion AS plan_descripcion,
+         p.precio AS plan_precio,
+         p.caracteristicas AS plan_caracteristicas
+      FROM 
+         clientes c 
+      INNER JOIN ${this.table} cp ON 
+         c.id = cp.idCliente 
+      INNER JOIN planes p ON 
+         cp.idPlan = p.id
+      WHERE cp.id = ?`;
+    const row = await query(sql, [id]);
+    return row[0];
+}
+
+  static async delete(id) {
+    const sql = `DELETE FROM ${this.table} WHERE id = ?`;
+    await query(sql, [id]);
+  }
+
+  static async findByStaticIpOrMac(ip, mac) {
+    const sql = `SELECT * FROM ${this.table} WHERE ip_estatica = ? OR mac_antena = ?`;
+    const result = await query(sql, [ip, mac]);
+    return result;
+  }
 }
