@@ -23,3 +23,16 @@ export const planCustomerAdapterDTO = (plan) => {
     },
   };
 };
+
+export const planCustomerAdapterEntity = (plan) => {
+  return {
+    id: plan.id,
+    estado: plan.status,
+    ip_estatica: plan.staticIp,
+    mac_antena: plan.mac,
+    fecha_inicio: plan.startDate,
+    fecha_fin: plan.endDate,
+    idPlan: plan.planId,
+    idCliente: plan.customerId,
+  };
+}
