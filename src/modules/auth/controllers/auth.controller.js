@@ -32,3 +32,14 @@ export const logout = (req, res) => {
     return res.status(500).json({ message: "Error al cerrar sesión" });
   }
 };
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    await AuthService.resetPassword(email, password);
+
+    return res.status(200).json({ message: "Contraseña actualizada" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};

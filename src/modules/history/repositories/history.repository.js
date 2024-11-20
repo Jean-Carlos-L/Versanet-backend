@@ -49,12 +49,12 @@ export class HistoryRepository {
 
     const params = [entity];
     if (startDate) {
-      sql += `AND fecha_notificacion >= ? `;
+      sql += `AND fecha_historial >= ? `;
       params.push(startDate);
     }
 
     sql += `
-      ORDER BY fecha_notificacion DESC
+      ORDER BY fecha_historial DESC
       LIMIT ? OFFSET ?
     `;
     params.push(limit, offset);
@@ -92,7 +92,7 @@ export class HistoryRepository {
     const sql = `
       SELECT * 
       FROM ${this.table} 
-      ORDER BY fecha_notificacion DESC
+      ORDER BY fecha_historial DESC
     `;
     return await query(sql);
   }
