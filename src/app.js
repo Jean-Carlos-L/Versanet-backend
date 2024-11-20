@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { MikrotikService } from "./modules/mikrotik/services/mikrotik.service.js";
+import mikrotikRoutes from "./modules/mikrotik/routes/mikrotik.routes.js";
 import userRoutes from "./modules/user/routes/user.routes.js";
 import authRoutes from "./modules/auth/routes/auth.routes.js";
 import RoleRoutes from "./modules/roles/routes/role.routes.js";
@@ -12,6 +12,7 @@ import planCustomerRouter from "./modules/plansCustomers/routes/planCustomer.rou
 import customerRouter from "./modules/customers/routes/customer.routes.js";
 import historyRouter from "./modules/history/routes/history.routes.js";
 import { authorize } from "./common/core/role.middleware.js";
+import { statsRoutes } from "./modules/stats/routes/stats.route.js";
 
 const app = express();
 
@@ -30,47 +31,6 @@ app.get("/", async (req, res) => {
   });
 });
 
-// Nuevo endpoint para obtener la identidad del sistema
-app.get("/system-identity", async (req, res) => {
-  try {
-    const identity = await MikrotikService.getSystemIdentity();
-
-    // Devolver el valor al cliente
-    res.json(identity);
-  } catch (error) {
-    console.error("Error in /system-identity endpoint: ", error);
-    res.status(500).json({
-      error: "Failed to retrieve system identity",
-    });
-  }
-});
-
-app.get("/interface-traffic", async (req, res) => {
-  try {
-    const traffic = await MikrotikService.getInterfaceTraffic();
-
-    res.json(traffic);
-  } catch (error) {
-    console.error("Error in /interface-traffic endpoint: ", error);
-    res.status(500).json({
-      error: "Failed to retrieve interface traffic",
-    });
-  }
-});
-
-app.get("/traffic-by-ip", async (req, res) => {
-  try {
-    const traffic = await MikrotikService.getTrafficByIP();
-
-    res.json(traffic);
-  } catch (error) {
-    console.error("Error in /traffic-by-ip endpoint: ", error);
-    res.status(500).json({
-      error: "Failed to retrieve traffic by IP",
-    });
-  }
-});
-
 app.use("/api", authRoutes);
 
 app.use(authMiddleware);
@@ -80,5 +40,8 @@ app.use("/api/permissions", permissionsRouter);
 app.use("/api/plans", planRouter);
 app.use("/api/plans-customers", planCustomerRouter);
 app.use("/api/customers", customerRouter);
+app.use("/api/stats", statsRoutes);
+app.use("/api/mikrotik", mikrotikRoutes);
 app.use("/api/history", historyRouter);
+
 export default app;

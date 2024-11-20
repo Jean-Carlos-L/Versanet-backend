@@ -6,6 +6,7 @@ import {
   MIKROTIK_USER,
 } from "../constants/constants.js";
 
+// Establecer la conexión a Mikrotik
 export const connection = () =>
   new Promise((resolve, reject) => {
     const conn = new RouterOSAPI({
@@ -13,17 +14,16 @@ export const connection = () =>
       port: MIKROTIK_PORT,
       user: MIKROTIK_USER,
       password: MIKROTIK_PASSWORD,
-      timeout: 30000, // Ajusta el timeout según sea necesario
+      timeout: 30000,
     });
-    // Conexión correcta a la API usando promesas
     conn
       .connect()
       .then(() => {
-        console.log("Connection successfully established with Mikrotik");
+        console.log("Conexión exitosa a Mikrotik");
         resolve(conn);
       })
       .catch((err) => {
-        console.error("Error while trying to connect to Mikrotik", err);
+        console.error("Error de conexión a Mikrotik:", err);
         reject(err);
       });
   });
