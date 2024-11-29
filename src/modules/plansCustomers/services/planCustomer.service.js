@@ -1,5 +1,6 @@
 import { PlanCustomerRepository } from "../repositories/planCustomer.repository.js";
 import { planCustomerAdapterDTO } from "../adapters/planCustomer.adapter.js";
+import { sendEmail } from "../../../common/utils/mailer.util.js";
 
 export class PlanCustomerService {
   static async findAll(filters) {
@@ -44,13 +45,21 @@ export class PlanCustomerService {
 
   static async create(planCustomer) {
     try {
-      const planCustomerExists = await PlanCustomerRepository.findByStaticIpOrMac(planCustomer.staticIp, planCustomer.mac);
+      const planCustomerExists =
+        await PlanCustomerRepository.findByStaticIpOrMac(
+          planCustomer.staticIp,
+          planCustomer.mac
+        );
       if (planCustomerExists.length) {
         throw new Error("La dirección IP o MAC ya se encuentra registrada");
       }
+
+      const { email, plan, startDate, endDate } = planCustomer;
+      const subject = "Plan de internet contratado";
+      const text = `Hola, ${email}. Has contratado el plan ${plan} desde el ${startDate} hasta el ${endDate}.`;
+      await sendEmail("jhojan.serna@correounivalle.edu.co", subject, text);
+
       return await PlanCustomerRepository.create(planCustomer);
-
-
     } catch (error) {
       console.error("PlanCustomerService - create: ", error);
       throw new Error(error.message);
@@ -75,7 +84,6 @@ export class PlanCustomerService {
       throw new Error(error.message);
     }
   }
-  
 
   static async delete(id) {
     try {

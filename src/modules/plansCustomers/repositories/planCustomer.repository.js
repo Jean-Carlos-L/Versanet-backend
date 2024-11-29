@@ -178,7 +178,7 @@ export class PlanCustomerRepository {
       WHERE cp.id = ?`;
     const row = await query(sql, [id]);
     return row[0];
-}
+  }
 
   static async delete(id) {
     const sql = `DELETE FROM ${this.table} WHERE id = ?`;
