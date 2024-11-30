@@ -34,7 +34,7 @@ export const sendEmail = async (to, subject, text) => {
       to,
       subject,
       text,
-      html: `<p>${text}</p>`,
+      html: `${text}`,
     });
     console.log("Correo enviado: ", info.messageId);
   } catch (error) {
