@@ -45,5 +45,4 @@ app.use("/api/stats", statsRoutes);
 app.use("/api/mikrotik", mikrotikRoutes);
 app.use("/api/history", historyRouter);
 app.use("/api/inventario", inventoryRoutes);
-
 export default app;

@@ -51,7 +51,7 @@ export const disablePlan = async (req, res) => {
 
 export const createPlanCustomer = async (req, res) => {
   try {
-    await PlanCustomerService.create(req.body);
+    await PlanCustomerService.create(req.body); 
     res.status(200).json({
       message: "Plan customer created",
     });

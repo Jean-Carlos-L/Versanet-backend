@@ -110,9 +110,7 @@ export class InventoryRepository {
 //   }
 
   static async create(inventory) {
-    console.log(inventory);
     const newId = await query("SELECT UUID() as id");
-  
     const id = newId[0].id;
     const sql = `INSERT INTO ${this.table} (id, referencia, mac, ip, estado, idTipo) VALUES (?, ?, ?, ?, ?, ?)`;
     const params = [

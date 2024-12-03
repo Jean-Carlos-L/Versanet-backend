@@ -14,24 +14,38 @@ export class PlanCustomerRepository {
       endDate,
     } = filters;
     let queryText = `SELECT 
-         c.*,
-         cp.id AS cliente_plan_id,
-         cp.estado AS cliente_plan_estado,
-         cp.ip_estatica,
-         cp.mac_antena,
-         cp.fecha_inicio,
-         cp.fecha_fin,
-         p.id AS plan_id,
-         p.descripcion AS plan_descripcion,
-         p.precio AS plan_precio,
-         p.caracteristicas AS plan_caracteristicas
+        c.*,
+        cp.id AS cliente_plan_id,
+        cp.estado AS cliente_plan_estado,
+        cp.fecha_inicio,
+        cp.fecha_fin,
+        p.id AS plan_id,
+        p.descripcion AS plan_descripcion,
+        p.precio AS plan_precio,
+        p.caracteristicas AS plan_caracteristicas,
+        im.id AS inventarioMac_id,
+        im.referencia AS inventarioMac_referencia,
+        im.mac AS inventarioMac_mac,
+        im.ip AS inventarioMac_ip,
+        im.idTipo AS inventarioMac_tipo,
+        im.estado AS inventarioMac_estado,
+        ir.id AS inventarioRouter_id,
+        ir.referencia AS inventarioRouter_referencia,
+        ir.mac AS inventarioRouter_mac,
+        ir.ip AS inventarioRouter_ip,
+        ir.idTipo AS inventarioRouter_tipo,
+        ir.estado AS inventarioRouter_estado
       FROM 
-         clientes c 
+        clientes c
       INNER JOIN ${this.table} cp ON 
-         c.id = cp.idCliente 
+        c.id = cp.idCliente
       INNER JOIN planes p ON 
-         cp.idPlan = p.id
-      WHERE 1 = 1`;
+        cp.idPlan = p.id
+      LEFT JOIN inventario im ON 
+        cp.idMac = im.id
+      LEFT JOIN inventario ir ON 
+        cp.idRouter = ir.id
+      WHERE  1=1`;
 
     const params = [];
     if (status) {
@@ -124,70 +138,100 @@ export class PlanCustomerRepository {
     const rows = await query(queryText, values);
     return rows;
   }
-
+  
   static async create(planCustomer) {
     const newId = await query("SELECT UUID() as id");
     const id = newId[0].id;
-    const sql = `INSERT INTO ${this.table} (id,idCliente, idPlan, estado, ip_estatica, mac_antena, fecha_inicio, fecha_fin) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    const sql = `
+      INSERT INTO ${this.table} 
+      (id, idCliente, idPlan, estado, fecha_inicio, fecha_fin, idMac, idRouter) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
     const params = [
       id,
-      planCustomer.customer.id,
-      planCustomer.plan.id,
-      planCustomer.status,
-      planCustomer.staticIp,
-      planCustomer.mac,
-      planCustomer.startDate,
-      planCustomer.endDate,
+      planCustomer.customer.id,     
+      planCustomer.plan.id,        
+      planCustomer.status,         
+      planCustomer.startDate,       
+      planCustomer.endDate,         
+      planCustomer.inventory.idMac, 
+      planCustomer.inventory.idRouter,
     ];
     await query(sql, params);
     return id;
   }
+  
 
   static async update(id, planCustomer) {
-    const sql = `UPDATE ${this.table} SET idCliente=?, idPlan=?,estado = ?, ip_estatica = ?, mac_antena = ?, fecha_inicio = ?, fecha_fin = ? WHERE id = ?`;
-    await query(sql, [
-      planCustomer.customer.id,
-      planCustomer.plan.id,
-      planCustomer.status,
-      planCustomer.staticIp,
-      planCustomer.mac,
-      planCustomer.startDate,
-      planCustomer.endDate,
-      id,
-    ]);
+    const sql = `
+      UPDATE ${this.table} 
+      SET 
+        idCliente = ?, 
+        idPlan = ?, 
+        estado = ?, 
+        fecha_inicio = ?, 
+        fecha_fin = ?, 
+        idMac = ?, 
+        idRouter = ? 
+      WHERE id = ?
+    `;
+    const params = [
+      planCustomer.customer.id,  
+      planCustomer.plan.id,       
+      planCustomer.status,        
+      planCustomer.startDate,       
+      planCustomer.endDate,         
+      planCustomer.inventory.idMac,
+      planCustomer.inventory.idRouter, 
+      id                            
+    ];
+    await query(sql, params);
   }
+  
 
   static async findById(id) {
-    const sql = `SELECT c.*,
-         cp.id AS cliente_plan_id,
-         cp.estado AS cliente_plan_estado,
-         cp.ip_estatica,
-         cp.mac_antena,
-         cp.fecha_inicio,
-         cp.fecha_fin,
-         p.id AS plan_id,
-         p.descripcion AS plan_descripcion,
-         p.precio AS plan_precio,
-         p.caracteristicas AS plan_caracteristicas
+    const sql = `
+      SELECT 
+        c.*,
+        cp.id AS cliente_plan_id,
+        cp.estado AS cliente_plan_estado,
+        cp.fecha_inicio,
+        cp.fecha_fin,
+        p.id AS plan_id,
+        p.descripcion AS plan_descripcion,
+        p.precio AS plan_precio,
+        p.caracteristicas AS plan_caracteristicas,
+        im.id AS inventarioMac_id,
+        im.referencia AS inventarioMac_referencia,
+        im.mac AS inventarioMac_mac,
+        im.ip AS inventarioMac_ip,
+        im.idTipo AS inventarioMac_tipo,
+        im.estado AS inventarioMac_estado,
+        ir.id AS inventarioRouter_id,
+        ir.referencia AS inventarioRouter_referencia,
+        ir.mac AS inventarioRouter_mac,
+        ir.ip AS inventarioRouter_ip,
+        ir.idTipo AS inventarioRouter_tipo,
+        ir.estado AS inventarioRouter_estado
       FROM 
-         clientes c 
+        clientes c
       INNER JOIN ${this.table} cp ON 
-         c.id = cp.idCliente 
+        c.id = cp.idCliente
       INNER JOIN planes p ON 
-         cp.idPlan = p.id
-      WHERE cp.id = ?`;
+        cp.idPlan = p.id
+      LEFT JOIN inventario im ON 
+        cp.idMac = im.id
+      LEFT JOIN inventario ir ON 
+        cp.idRouter = ir.id
+      WHERE 
+        cp.id = ?`;
     const row = await query(sql, [id]);
     return row[0];
-}
+  }
 
   static async delete(id) {
     const sql = `DELETE FROM ${this.table} WHERE id = ?`;
     await query(sql, [id]);
   }
 
-  static async findByStaticIpOrMac(ip, mac) {
-    const sql = `SELECT * FROM ${this.table} WHERE ip_estatica = ? OR mac_antena = ?`;
-    const result = await query(sql, [ip, mac]);
-    return result;
-  }
 }
