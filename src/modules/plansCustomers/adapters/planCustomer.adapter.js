@@ -41,11 +41,11 @@ export const planCustomerAdapterDTO = (plan) => {
 export const planCustomerAdapterEntity = (plan) => {
   return {
     id: plan.id, 
-    estado: plan.status,
-    fecha_inicio: plan.startDate,
-    fecha_fin: plan.endDate,
+    status: plan.status,
+    startDate: plan.startDate,
+    endDate: plan.endDate,
     idPlan: plan.idPlan,
-    idCliente: plan.idCustomer,
+    idCustomer: plan.idCustomer,
     idMac: plan.idMac,
     idRouter: plan.idRouter,
   };

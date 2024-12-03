@@ -140,25 +140,23 @@ export class PlanCustomerRepository {
   }
   
   static async create(planCustomer) {
-    const newId = await query("SELECT UUID() as id");
-    const id = newId[0].id;
+
     const sql = `
       INSERT INTO ${this.table} 
       (id, idCliente, idPlan, estado, fecha_inicio, fecha_fin, idMac, idRouter) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?)
     `;
     const params = [
-      id,
-      planCustomer.customer.id,     
-      planCustomer.plan.id,        
+      planCustomer.idCustomer,     
+      planCustomer.idPlan,        
       planCustomer.status,         
       planCustomer.startDate,       
       planCustomer.endDate,         
-      planCustomer.inventory.idMac, 
-      planCustomer.inventory.idRouter,
+      planCustomer.idMac, 
+      planCustomer.idRouter,
     ];
-    await query(sql, params);
-    return id;
+    const row = await query(sql, params);
+    return row;
   }
   
 
@@ -181,8 +179,8 @@ export class PlanCustomerRepository {
       planCustomer.status,        
       planCustomer.startDate,       
       planCustomer.endDate,         
-      planCustomer.inventory.idMac,
-      planCustomer.inventory.idRouter, 
+      planCustomer.idMac,
+      planCustomer.idRouter, 
       id                            
     ];
     await query(sql, params);
