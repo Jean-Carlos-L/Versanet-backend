@@ -3,17 +3,17 @@ import { query } from "../../../common/utils/query.utils.js";
 export class InventoryRepository {
   static table = "inventario";
   static tipoTable = "tipo_inventario";
-
   static async findAll(filters) {
     const {
       page = 1,
       pageSize = 50,
       reference,
       mac,
-      tipo,
+      typeInventory,
       ip,
     } = filters;
 
+    console.log("filters", filters)
     let queryText = `SELECT 
           i.id,
           i.referencia,
@@ -45,9 +45,10 @@ export class InventoryRepository {
       queryText += ` AND i.ip LIKE ?`;
       params.push(`%${ip}%`);
     }
-    if(tipo){
+    if(typeInventory){
+      console.log("tipo", typeInventory)
       queryText += ` AND t.descripcion LIKE ?`;
-      params.push(`%${tipo}%`);
+      params.push(`%${typeInventory}%`);
     }
 
     if (page && pageSize) {
@@ -98,16 +99,6 @@ export class InventoryRepository {
 
     return rows[0].total;
   }
-
-//   static async assign(id) {
-//     const sql = `UPDATE ${this.table} SET estado = 0 WHERE id = ?`;
-//     await query(sql, [id]);
-//   }
-
-//   static async unassign(id) {
-//     const sql = `UPDATE ${this.table} SET estado = 1 WHERE id = ?`;
-//     await query(sql, [id]);
-//   }
 
   static async create(inventory) {
     const newId = await query("SELECT UUID() as id");

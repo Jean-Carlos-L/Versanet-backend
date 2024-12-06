@@ -44,9 +44,9 @@ export const planCustomerAdapterEntity = (plan) => {
     status: plan.status,
     startDate: plan.startDate,
     endDate: plan.endDate,
-    idPlan: plan.idPlan,
-    idCustomer: plan.idCustomer,
-    idMac: plan.idMac,
-    idRouter: plan.idRouter,
+    idPlan: plan.plan.id,
+    idCustomer: plan.customer.id,
+    idMac: plan.inventoryMac.id,
+    idRouter: plan.inventoryRouter.id,
   };
 }

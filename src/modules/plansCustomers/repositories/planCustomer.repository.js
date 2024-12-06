@@ -174,8 +174,8 @@ export class PlanCustomerRepository {
       WHERE id = ?
     `;
     const params = [
-      planCustomer.customer.id,  
-      planCustomer.plan.id,       
+      planCustomer.idCustomer,  
+      planCustomer.idPlan,       
       planCustomer.status,        
       planCustomer.startDate,       
       planCustomer.endDate,         
@@ -229,6 +229,17 @@ export class PlanCustomerRepository {
 
   static async delete(id) {
     const sql = `DELETE FROM ${this.table} WHERE id = ?`;
+    await query(sql, [id]);
+  }
+
+  
+   static async assign(id) {
+     const sql = `UPDATE ${this.table} SET estado = 0 WHERE id = ?`;
+    await query(sql, [id]);
+  }
+
+  static async unassign(id) {
+    const sql = `UPDATE ${this.table} SET estado = 1 WHERE id = ?`;
     await query(sql, [id]);
   }
 
