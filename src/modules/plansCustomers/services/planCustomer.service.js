@@ -70,12 +70,20 @@ export class PlanCustomerService {
     }
   }
   
-
   static async delete(id) {
     try {
       await PlanCustomerRepository.delete(id);
     } catch (error) {
       console.error("PlanCustomerService - delete: ", error);
+      throw new Error(error.message);
+    }
+  }
+
+  static async updateInventory(idInventory, status){
+    try {
+      await PlanCustomerRepository.updateInventoryStatus(idInventory, status);
+    } catch (error) {
+      console.error("PlanCustomerService - updateInventory: ", error);
       throw new Error(error.message);
     }
   }

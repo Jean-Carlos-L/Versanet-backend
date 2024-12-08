@@ -170,4 +170,5 @@ export class InventoryRepository {
     const row = await query(sql, [ip, mac, reference]);
     return row[0];
   }
+  
 }

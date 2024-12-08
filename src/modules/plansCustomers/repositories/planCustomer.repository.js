@@ -232,15 +232,8 @@ export class PlanCustomerRepository {
     await query(sql, [id]);
   }
 
-  
-   static async assign(id) {
-     const sql = `UPDATE ${this.table} SET estado = 0 WHERE id = ?`;
-    await query(sql, [id]);
+  static async updateInventoryStatus(idInventory, status) {
+    const sql = `UPDATE inventario SET estado = ? WHERE id = ?`;
+    await query(sql, [status,idInventory]);
   }
-
-  static async unassign(id) {
-    const sql = `UPDATE ${this.table} SET estado = 1 WHERE id = ?`;
-    await query(sql, [id]);
-  }
-
 }
