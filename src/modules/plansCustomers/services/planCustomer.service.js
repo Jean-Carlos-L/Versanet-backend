@@ -1,5 +1,5 @@
 import { PlanCustomerRepository } from "../repositories/planCustomer.repository.js";
-import { planCustomerAdapterDTO } from "../adapters/planCustomer.adapter.js";
+import { planCustomerAdapterDTO, planCustomerAdapterEntity } from "../adapters/planCustomer.adapter.js";
 
 export class PlanCustomerService {
   static async findAll(filters) {
@@ -44,13 +44,7 @@ export class PlanCustomerService {
 
   static async create(planCustomer) {
     try {
-      const planCustomerExists = await PlanCustomerRepository.findByStaticIpOrMac(planCustomer.staticIp, planCustomer.mac);
-      if (planCustomerExists.length) {
-        throw new Error("La dirección IP o MAC ya se encuentra registrada");
-      }
-      return await PlanCustomerRepository.create(planCustomer);
-
-
+      return await PlanCustomerRepository.create( planCustomerAdapterEntity(planCustomer));
     } catch (error) {
       console.error("PlanCustomerService - create: ", error);
       throw new Error(error.message);
@@ -59,7 +53,7 @@ export class PlanCustomerService {
 
   static async update(id, planCustomer) {
     try {
-      await PlanCustomerRepository.update(id, planCustomer);
+      await PlanCustomerRepository.update(id, planCustomerAdapterEntity(planCustomer));
     } catch (error) {
       console.error("PlanCustomerService - update: ", error);
       throw new Error(error.message);
@@ -76,12 +70,20 @@ export class PlanCustomerService {
     }
   }
   
-
   static async delete(id) {
     try {
       await PlanCustomerRepository.delete(id);
     } catch (error) {
       console.error("PlanCustomerService - delete: ", error);
+      throw new Error(error.message);
+    }
+  }
+
+  static async updateInventory(idInventory, status){
+    try {
+      await PlanCustomerRepository.updateInventoryStatus(idInventory, status);
+    } catch (error) {
+      console.error("PlanCustomerService - updateInventory: ", error);
       throw new Error(error.message);
     }
   }
