@@ -1,12 +1,18 @@
 import pkg from "nodemailer";
-
+import {
+  MAIL_HOST,
+  MAIL_PASS,
+  MAIL_PORT,
+  MAIL_SECURE,
+  MAIL_USER,
+} from "../constants/constants";
 const transporter = pkg.createTransport({
-  host: process.env.MAIL_HOST,
-  port: parseInt(process.env.MAIL_PORT, 10), // Asegúrate de convertir el puerto a número
-  secure: process.env.MAIL_SECURE === "true", // Convertir a booleano
+  host: MAIL_HOST,
+  port: parseInt(MAIL_PORT, 10), // Asegúrate de convertir el puerto a número
+  secure: MAIL_SECURE === "true", // Convertir a booleano
   auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
+    user: MAIL_USER,
+    pass: MAIL_PASS,
   },
 });
 
@@ -30,7 +36,7 @@ export const sendEmail = async (to, subject, text) => {
 
   try {
     const info = await transporter.sendMail({
-      from: `Versanet <${process.env.MAIL_USER}>`,
+      from: `Versanet <${MAIL_USER}>`,
       to,
       subject,
       text,
