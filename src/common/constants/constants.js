@@ -12,3 +12,10 @@ export const MYSQL_DATABASE = process.env.MYSQL_DATABASE;
 export const MYSQL_PORT = process.env.MYSQL_PORT;
 
 export const JWT_SECRET = process.env.JWT_SECRET;
+
+export const MAIL_HOST = process.env.MAIL_HOST;
+export const MAIL_PORT = process.env.MAIL_PORT;
+export const MAIL_SECURE = process.env.MAIL_SECURE;
+export const MAIL_USER = process.env.MAIL_USER;
+export const MAIL_PASS = process.env.MAIL_PASS;
+export const MAIL_FROM = process.env.MAIL_FROM;
