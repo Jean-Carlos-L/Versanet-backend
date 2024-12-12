@@ -1,5 +1,5 @@
 import { PlanCustomerRepository } from "../repositories/planCustomer.repository.js";
-import { planCustomerAdapterDTO } from "../adapters/planCustomer.adapter.js";
+import { planCustomerAdapterDTO, planCustomerAdapterEntity } from "../adapters/planCustomer.adapter.js";
 import { sendEmail } from "../../../common/utils/mailer.util.js";
 import { CustomerRepository } from "../../customers/repositories/costumer.repository.js";
 import { PlanRepository } from "../../plans/repositories/plan.repository.js";
@@ -52,6 +52,7 @@ export class PlanCustomerService {
   // Crea un plan para un cliente
   static async create(planCustomer) {
     try {
+      
       // Validar duplicados de IP o MAC
       await this._validateDuplicatePlan(planCustomer);
 
@@ -133,7 +134,6 @@ export class PlanCustomerService {
     }
   }
 
-  // Elimina un plan de cliente
   static async delete(id) {
     try {
       const planCustomer = await PlanCustomerRepository.findById(id);
@@ -197,6 +197,14 @@ export class PlanCustomerService {
     }
   }
 
+  static async updateInventory(idInventory, status){
+    try {
+      await PlanCustomerRepository.updateInventoryStatus(idInventory, status);
+    } catch (error) {
+      console.error("PlanCustomerService - updateInventory: ", error);
+      throw new Error(error.message);
+    }
+    
   static _generateEmailContent(customer, plan, planCustomer, action) {
     const { startDate, endDate } = planCustomer;
     return `
