@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import mikrotikRoutes from "./modules/mikrotik/routes/mikrotik.routes.js";
+import inventoryRoutes from "./modules/inventory/routes/inventory.routes.js";
 import userRoutes from "./modules/user/routes/user.routes.js";
 import authRoutes from "./modules/auth/routes/auth.routes.js";
 import RoleRoutes from "./modules/roles/routes/role.routes.js";
@@ -45,5 +46,5 @@ app.use("/api/customers", customerRouter);
 app.use("/api/stats", statsRoutes);
 app.use("/api/mikrotik", mikrotikRoutes);
 app.use("/api/history", historyRouter);
-
+app.use("/api/inventario", inventoryRoutes);
 export default app;
