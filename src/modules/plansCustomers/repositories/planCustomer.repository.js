@@ -45,8 +45,13 @@ export class PlanCustomerRepository {
     }
 
     if (customer) {
-      queryText += ` AND (c.nombres LIKE ? OR c.cedula LIKE ? OR c.correo_electronico LIKE ?)`;
-      params.push(`%${customer}%`, `%${customer}%`, `%${customer}%`);
+      queryText += ` AND (c.id LIKE ? OR c.nombres LIKE ? OR c.cedula LIKE ? OR c.correo_electronico LIKE ?)`;
+      params.push(
+        `%${customer}%`,
+        `%${customer}%`,
+        `%${customer}%`,
+        `%${customer}%`
+      );
     }
 
     if (startDate) {

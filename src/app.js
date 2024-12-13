@@ -13,6 +13,7 @@ import customerRouter from "./modules/customers/routes/customer.routes.js";
 import historyRouter from "./modules/history/routes/history.routes.js";
 import { authorize } from "./common/core/role.middleware.js";
 import { statsRoutes } from "./modules/stats/routes/stats.route.js";
+import invoiceRouter from "./modules/invoices/routes/invoice.routes.js";
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.get("/", async (req, res) => {
 });
 
 app.use("/api", authRoutes);
+app.use("/api/invoices", invoiceRouter);
 
 app.use(authMiddleware);
 app.use("/api/users", userRoutes);
