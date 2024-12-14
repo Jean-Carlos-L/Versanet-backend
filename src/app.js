@@ -34,7 +34,6 @@ app.get("/", async (req, res) => {
 });
 
 app.use("/api", authRoutes);
-app.use("/api/invoices", invoiceRouter);
 
 app.use(authMiddleware);
 app.use("/api/users", userRoutes);
@@ -47,4 +46,6 @@ app.use("/api/stats", statsRoutes);
 app.use("/api/mikrotik", mikrotikRoutes);
 app.use("/api/history", historyRouter);
 app.use("/api/inventario", inventoryRoutes);
+app.use("/api/invoices", invoiceRouter);
+
 export default app;

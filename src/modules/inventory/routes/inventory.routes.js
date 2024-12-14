@@ -1,12 +1,12 @@
 import express from "express";
 import {
-    createInventory,
-    updateInventory,
-    getInventoryById,
-    getInventories,
-    deleteInventory,
-    getInventoryByReference,
-    getCountInventories,
+  createInventory,
+  updateInventory,
+  getInventoryById,
+  getInventories,
+  deleteInventory,
+  getInventoryByReference,
+  getCountInventories,
 } from "../controllers/inventory.controller.js";
 
 import { authMiddleware } from "../../../common/core/auth.middleware.js";
@@ -22,6 +22,5 @@ router.put("/:id", updateInventory);
 router.get("/:id", getInventoryById);
 router.delete("/delete/:id", deleteInventory);
 router.get("/reference/:reference", getInventoryByReference);
-
 
 export default router;

@@ -6,7 +6,6 @@ import {
 import { sendEmail } from "../../../common/utils/mailer.util.js";
 import { CustomerRepository } from "../../customers/repositories/costumer.repository.js";
 import { PlanRepository } from "../../plans/repositories/plan.repository.js";
-import { InvoiceService } from "../../invoices/services/invoice.service.js";
 
 export class PlanCustomerService {
   // Encuentra todos los planes de los clientes con filtros
@@ -55,15 +54,14 @@ export class PlanCustomerService {
 
   static async create(planCustomer) {
     try {
-      // Validar duplicados de IP o MAC
-      await this._validateDuplicatePlan(planCustomer);
-
       const customer = await this._validateCustomer(planCustomer.customer.id);
       const plan = await this._validatePlan(planCustomer.plan.id);
 
-      await PlanCustomerRepository.create(planCustomer);
+      console.log("planCustomer", planCustomerAdapterEntity(planCustomer));
+      await PlanCustomerRepository.create(
+        planCustomerAdapterEntity(planCustomer)
+      );
 
-      // Enviar correo de notificación
       const subject = "Tu Plan de Internet ha sido Contratado";
       const htmlContent = this._generateEmailContent(
         customer,
@@ -80,10 +78,8 @@ export class PlanCustomerService {
     }
   }
 
-  // Actualiza un plan de cliente
   static async update(id, planCustomer) {
     try {
-      // Validar existencia del plan actual
       const currentPlanCustomer = await PlanCustomerRepository.findById(id);
       if (!currentPlanCustomer)
         throw new Error("El plan del cliente no existe.");
@@ -93,7 +89,6 @@ export class PlanCustomerService {
 
       await PlanCustomerRepository.update(id, planCustomer);
 
-      // Enviar correo de notificación
       const subject = "Tu Plan de Internet ha sido Actualizado";
       const htmlContent = this._generateEmailContent(
         customer,
@@ -151,15 +146,6 @@ export class PlanCustomerService {
   }
 
   // Métodos privados
-  static async _validateDuplicatePlan(planCustomer) {
-    const existingPlan = await PlanCustomerRepository.findByStaticIpOrMac(
-      planCustomer.staticIp,
-      planCustomer.mac
-    );
-    if (existingPlan.length) {
-      throw new Error("La dirección IP o MAC ya se encuentra registrada.");
-    }
-  }
 
   static async _validateCustomer(customerId) {
     const customer = await CustomerRepository.findById(customerId);

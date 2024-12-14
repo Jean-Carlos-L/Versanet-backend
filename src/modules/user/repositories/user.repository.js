@@ -4,7 +4,7 @@ export class UserRepository {
   // Función para crear un usuario
   static async createUser(user) {
     const sql = `INSERT INTO usuarios (id, nombres, correo_electronico, contrasena, idRol, estado) 
-                 VALUES (UUID(), ?, ?, ?, ?, ?)`;
+                 VALUES (UUID(), ?, ?, ?, ?, 1)`;
     const params = [
       user.nombres,
       user.correo_electronico,
