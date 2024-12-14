@@ -5,7 +5,7 @@ import {
   MAIL_PORT,
   MAIL_SECURE,
   MAIL_USER,
-} from "../constants/constants";
+} from "../constants/constants.js";
 const transporter = pkg.createTransport({
   host: MAIL_HOST,
   port: parseInt(MAIL_PORT, 10), // Asegúrate de convertir el puerto a número
@@ -26,7 +26,7 @@ transporter.verify((error) => {
 });
 
 // Función para enviar el correo
-export const sendEmail = async (to, subject, text) => {
+export const sendEmail = async (to, subject, text, nameFile, pdfPath) => {
   console.log("Destinatario:", to);
 
   if (!to || !to.trim()) {
@@ -41,6 +41,12 @@ export const sendEmail = async (to, subject, text) => {
       subject,
       text,
       html: `${text}`,
+      attachments: [
+        {
+          filename: nameFile,
+          path: pdfPath,
+        },
+      ],
     });
     console.log("Correo enviado: ", info.messageId);
   } catch (error) {

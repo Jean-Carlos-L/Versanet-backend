@@ -51,35 +51,41 @@ export const disablePlan = async (req, res) => {
 
 export const createPlanCustomer = async (req, res) => {
   try {
-    if(req.body.inventoryMac.id){
+    console.log("req.body", req.body);
+    if (req.body.inventoryMac.id) {
       await PlanCustomerService.updateInventory(req.body.inventoryMac.id, 1);
     }
-    if(req.body.inventoryRouter.id){
+    if (req.body.inventoryRouter.id) {
       await PlanCustomerService.updateInventory(req.body.inventoryRouter.id, 1);
     }
     await PlanCustomerService.create(req.body);
     res.status(201).json({
       message: "Plan customer created",
     });
-    } catch (error) {
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
 export const updatePlanCustomer = async (req, res) => {
   try {
-
     const planCustomer = await PlanCustomerService.findById(req.params.id);
-    if(planCustomer.inventoryMac.id !== req.body.inventoryMac.id){
-      await PlanCustomerService.updateInventory(planCustomer.inventoryMac.id, 0);
+    if (planCustomer.inventoryMac.id !== req.body.inventoryMac.id) {
+      await PlanCustomerService.updateInventory(
+        planCustomer.inventoryMac.id,
+        0
+      );
       await PlanCustomerService.updateInventory(req.body.inventoryMac.id, 1);
     }
-    if(planCustomer.inventoryRouter.id !== req.body.inventoryRouter.id){
-      await PlanCustomerService.updateInventory(planCustomer.inventoryRouter.id, 0);
+    if (planCustomer.inventoryRouter.id !== req.body.inventoryRouter.id) {
+      await PlanCustomerService.updateInventory(
+        planCustomer.inventoryRouter.id,
+        0
+      );
       await PlanCustomerService.updateInventory(req.body.inventoryRouter.id, 1);
     }
     await PlanCustomerService.update(req.params.id, req.body);
-  
+
     res.status(200).json({
       message: "Plan customer updated",
     });
@@ -103,11 +109,17 @@ export const getPlanCustomerById = async (req, res) => {
 export const deletePlanCustomer = async (req, res) => {
   try {
     const planCustomer = await PlanCustomerService.findById(req.params.id);
-    if(planCustomer.inventoryMac.id){
-      await PlanCustomerService.updateInventory(planCustomer.inventoryMac.id, 0);
+    if (planCustomer.inventoryMac.id) {
+      await PlanCustomerService.updateInventory(
+        planCustomer.inventoryMac.id,
+        0
+      );
     }
-    if(planCustomer.inventoryRouter.id){
-      await PlanCustomerService.updateInventory(planCustomer.inventoryRouter.id, 0);
+    if (planCustomer.inventoryRouter.id) {
+      await PlanCustomerService.updateInventory(
+        planCustomer.inventoryRouter.id,
+        0
+      );
     }
     await PlanCustomerService.delete(req.params.id);
     res.status(200).json({
@@ -117,5 +129,3 @@ export const deletePlanCustomer = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-

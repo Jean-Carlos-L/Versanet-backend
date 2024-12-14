@@ -21,6 +21,7 @@
     "mysql2": "3.11.0",
     "node-routeros": "1.6.9",
     "nodemailer": "^6.9.16",
+    "puppeteer": "^23.10.2",
     "uuid": "^10.0.0"
   },
   "devDependencies": {

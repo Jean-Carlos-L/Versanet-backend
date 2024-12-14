@@ -59,7 +59,7 @@ export class PlanCustomerRepository {
     }
 
     if (customer) {
-      queryText += ` AND (c.nombres LIKE ? OR c.cedula LIKE ? OR c.correo_electronico LIKE ?)`;
+      queryText += ` AND (c.id LIKE ? OR c.nombres LIKE ? OR c.cedula LIKE ? OR c.correo_electronico LIKE ?)`;
       params.push(`%${customer}%`, `%${customer}%`, `%${customer}%`);
     }
 
@@ -138,27 +138,25 @@ export class PlanCustomerRepository {
     const rows = await query(queryText, values);
     return rows;
   }
-  
-  static async create(planCustomer) {
 
+  static async create(planCustomer) {
     const sql = `
       INSERT INTO ${this.table} 
       (id, idCliente, idPlan, estado, fecha_inicio, fecha_fin, idMac, idRouter) 
       VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?)
     `;
     const params = [
-      planCustomer.idCustomer,     
-      planCustomer.idPlan,        
-      planCustomer.status,         
-      planCustomer.startDate,       
-      planCustomer.endDate,         
-      planCustomer.idMac, 
+      planCustomer.idCustomer,
+      planCustomer.idPlan,
+      planCustomer.status,
+      planCustomer.startDate,
+      planCustomer.endDate,
+      planCustomer.idMac,
       planCustomer.idRouter,
     ];
     const row = await query(sql, params);
     return row;
   }
-  
 
   static async update(id, planCustomer) {
     const sql = `
@@ -174,18 +172,17 @@ export class PlanCustomerRepository {
       WHERE id = ?
     `;
     const params = [
-      planCustomer.idCustomer,  
-      planCustomer.idPlan,       
-      planCustomer.status,        
-      planCustomer.startDate,       
-      planCustomer.endDate,         
+      planCustomer.idCustomer,
+      planCustomer.idPlan,
+      planCustomer.status,
+      planCustomer.startDate,
+      planCustomer.endDate,
       planCustomer.idMac,
-      planCustomer.idRouter, 
-      id                            
+      planCustomer.idRouter,
+      id,
     ];
     await query(sql, params);
   }
-  
 
   static async findById(id) {
     const sql = `
@@ -234,6 +231,6 @@ export class PlanCustomerRepository {
 
   static async updateInventoryStatus(idInventory, status) {
     const sql = `UPDATE inventario SET estado = ? WHERE id = ?`;
-    await query(sql, [status,idInventory]);
+    await query(sql, [status, idInventory]);
   }
 }
