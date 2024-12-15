@@ -14,6 +14,8 @@ import customerRouter from "./modules/customers/routes/customer.routes.js";
 import historyRouter from "./modules/history/routes/history.routes.js";
 import { authorize } from "./common/core/role.middleware.js";
 import { statsRoutes } from "./modules/stats/routes/stats.route.js";
+import invoiceRouter from "./modules/invoices/routes/invoice.routes.js";
+import paymentRouter from "./modules/payments/routes/payment.routes.js";
 
 const app = express();
 
@@ -45,4 +47,7 @@ app.use("/api/stats", statsRoutes);
 app.use("/api/mikrotik", mikrotikRoutes);
 app.use("/api/history", historyRouter);
 app.use("/api/inventario", inventoryRoutes);
+app.use("/api/invoices", invoiceRouter);
+app.use("/api/payments", paymentRouter);
+
 export default app;

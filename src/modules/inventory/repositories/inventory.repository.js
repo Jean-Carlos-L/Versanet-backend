@@ -13,7 +13,6 @@ export class InventoryRepository {
       ip,
     } = filters;
 
-    console.log("filters", filters)
     let queryText = `SELECT 
           i.id,
           i.referencia,
@@ -41,12 +40,11 @@ export class InventoryRepository {
       queryText += ` AND i.mac LIKE ?`;
       params.push(`%${mac}%`);
     }
-    if(ip){
+    if (ip) {
       queryText += ` AND i.ip LIKE ?`;
       params.push(`%${ip}%`);
     }
-    if(typeInventory){
-      console.log("tipo", typeInventory)
+    if (typeInventory) {
       queryText += ` AND t.descripcion LIKE ?`;
       params.push(`%${typeInventory}%`);
     }
@@ -59,7 +57,7 @@ export class InventoryRepository {
   }
 
   static async countInventories(filters) {
-    const { status, reference, mac, tipo, ip,} = filters;
+    const { status, reference, mac, tipo, ip } = filters;
 
     let queryText = `SELECT 
           COUNT(*) AS total
@@ -90,7 +88,7 @@ export class InventoryRepository {
       queryText += ` AND ti.descripcion LIKE ?`;
       params.push(`%${tipo}%`);
     }
-    if(ip){
+    if (ip) {
       queryText += ` AND i.ip LIKE ?`;
       params.push(`%${ip}%`);
     }
@@ -115,7 +113,6 @@ export class InventoryRepository {
     await query(sql, params);
     return id;
   }
-  
 
   static async update(id, inventory) {
     const sql = `UPDATE ${this.table} SET referencia = ?, mac = ?, ip = ?, estado = ?, idTipo = ? WHERE id = ?`;
@@ -154,10 +151,9 @@ export class InventoryRepository {
     const sql = `DELETE FROM ${this.table} WHERE id = ? AND estado = 0`;
     const result = await query(sql, [id]);
     if (result.affectedRows === 1) {
-      throw new Error('No se puede eliminar un inventario asignado');
+      throw new Error("No se puede eliminar un inventario asignado");
     }
   }
-  
 
   static async findByReference(reference) {
     const sql = `SELECT * FROM ${this.table} WHERE referencia = ?`;
@@ -170,5 +166,4 @@ export class InventoryRepository {
     const row = await query(sql, [ip, mac, reference]);
     return row[0];
   }
-  
 }
