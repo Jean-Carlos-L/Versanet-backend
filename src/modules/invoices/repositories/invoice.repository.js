@@ -43,49 +43,50 @@ export class InvoiceRepository {
 
     let sql = `
     SELECT 
-      F.*,
-      CP.idPlan,
-      C.nombres,
-      C.cedula,
-      C.correo_electronico,
-      C.telefono,
-      C.direccion,
+      f.*,
+      cp.idPlan,
+      c.id AS cliente_id,
+      c.nombres,
+      c.cedula,
+      c.correo_electronico,
+      c.telefono,
+      c.direccion,
       p.id AS plan_id,
       p.descripcion AS plan_descripcion,
       p.precio AS plan_precio,
       p.caracteristicas AS plan_caracteristicas
     FROM 
-      facturas F
+      facturas f
     JOIN 
-      clientes_planes CP ON F.idCliente_Plan = CP.id
-    JOIN 
-      planes p ON CP.idPlan = p.id
-    JOIN 
-      clientes C ON F.idCliente = C.id
+      clientes_planes cp ON f.idCliente_Plan = cp.id
+    INNER JOIN 
+      planes p ON cp.idPlan = p.id
+    INNER JOIN 
+      clientes c ON f.idCliente = c.id
     WHERE 
       1 = 1
   `;
     const params = [];
 
     if (customer) {
-      sql += ` AND F.idCliente = ?`;
+      sql += ` AND f.idCliente = ?`;
       params.push(customer);
     }
     if (plan) {
-      sql += ` AND CP.idPlan = ?`;
+      sql += ` AND cp.idPlan = ?`;
       params.push(plan);
     }
     if (status !== undefined && status !== "") {
-      sql += ` AND F.estado = ?`;
+      sql += ` AND f.estado = ?`;
       params.push(status);
     }
 
     if (dateInvoice) {
-      sql += ` AND DATE(F.fecha_facturacion) = ?`;
+      sql += ` AND DATE(f.fecha_facturacion) = ?`;
       params.push(dateInvoice);
     }
 
-    sql += ` ORDER BY F.fecha_facturacion DESC`;
+    sql += ` ORDER BY f.fecha_facturacion DESC`;
 
     if (page && pageSize) {
       sql += ` LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}`;

@@ -8,7 +8,7 @@ export function invoiceAdapterDTO(invoice) {
       features: invoice.plan_caracteristicas,
     },
     customer: {
-      id: invoice.id,
+      id: invoice.cliente_id,
       name: invoice.nombres,
       document: invoice.cedula,
       email: invoice.correo_electronico,
