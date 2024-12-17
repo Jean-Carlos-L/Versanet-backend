@@ -26,13 +26,8 @@ export class MikrotikAdapter {
           name: traffic[0]["name"],
           rxPacketsPerSecond: Number(traffic[0]["rx-packets-per-second"]),
           rxBitsPerSecond: Number(traffic[0]["rx-bits-per-second"]),
-          fpRxPacketsPerSecond: Number(traffic[0]["fp-rx-packets-per-second"]),
-          fpRxBitsPerSecond: Number(traffic[0]["fp-rx-bits-per-second"]),
           txPacketsPerSecond: Number(traffic[0]["tx-packets-per-second"]),
           txBitsPerSecond: Number(traffic[0]["tx-bits-per-second"]),
-          fpTxPacketsPerSecond: Number(traffic[0]["fp-tx-packets-per-second"]),
-          fpTxBitsPerSecond: Number(traffic[0]["fp-tx-bits-per-second"]),
-          txQueueDropsPerSecond: Number(traffic[0]["tx-queue-drops-per-second"]),
         };
       } else {
         throw new Error("No data returned for the specified interface");
