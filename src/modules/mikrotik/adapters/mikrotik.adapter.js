@@ -9,14 +9,40 @@ export class MikrotikAdapter {
   }
 
   static async getInterfaceTraffic(interfaceName) {
-    const conn = await connection();
-    const traffic = await conn.write("/interface/monitor-traffic", [
-      `=interface=${interfaceName}`,
-      "=once=",
-    ]);
-    conn.close();
-    return traffic;
+    try {
+      const conn = await connection();
+  
+      // Llamada a la API de MikroTik
+      const traffic = await conn.write("/interface/monitor-traffic", [
+        `=interface=${interfaceName}`,
+        "=once",
+      ]);
+  
+      conn.close();
+  
+      // Convertimos los datos de strings a números
+      if (traffic.length > 0) {
+        return {
+          name: traffic[0]["name"],
+          rxPacketsPerSecond: Number(traffic[0]["rx-packets-per-second"]),
+          rxBitsPerSecond: Number(traffic[0]["rx-bits-per-second"]),
+          fpRxPacketsPerSecond: Number(traffic[0]["fp-rx-packets-per-second"]),
+          fpRxBitsPerSecond: Number(traffic[0]["fp-rx-bits-per-second"]),
+          txPacketsPerSecond: Number(traffic[0]["tx-packets-per-second"]),
+          txBitsPerSecond: Number(traffic[0]["tx-bits-per-second"]),
+          fpTxPacketsPerSecond: Number(traffic[0]["fp-tx-packets-per-second"]),
+          fpTxBitsPerSecond: Number(traffic[0]["fp-tx-bits-per-second"]),
+          txQueueDropsPerSecond: Number(traffic[0]["tx-queue-drops-per-second"]),
+        };
+      } else {
+        throw new Error("No data returned for the specified interface");
+      }
+    } catch (error) {
+      console.error("Error while retrieving interface traffic:", error);
+      throw new Error("Failed to retrieve interface traffic");
+    }
   }
+  
 
   static async getTrafficByIP(ip) {
     const conn = await connection();
