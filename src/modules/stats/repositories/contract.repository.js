@@ -21,7 +21,7 @@ export class ContractRepository {
 
   static async getClientsByPlanSpeed(speed) {
     return await query(
-      `SELECT COUNT(*) AS clientsWith${speed}MPlan FROM clientes_planes AS cp JOIN planes AS p ON cp.idPlan = p.id WHERE p.id = ?`,
+      `SELECT COUNT(*) AS clientsWith${speed}MPlan FROM clientes_planes AS cp JOIN planes AS p ON cp.idPlan = p.id WHERE p.descripcion LIKE CONCAT('%',${speed},' M%')`,
       [speed]
     );
   }
