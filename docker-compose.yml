@@ -1,22 +1,8 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql_db
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: versanetbd
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-      
-  backend:
+  app:
     build: .
-    container_name: node_backend
-    restart: always
     ports:
       - "5000:5000"
     environment:
@@ -26,11 +12,10 @@ services:
       - MYSQL_DATABASE=versanetbd
       - MYSQL_PORT=3306
       - JWT_SECRET=mysecretkey
-    volumes:
-      - .:/usr/src/app
-    command: npm run dev
-    depends_on:
-      - mysql
-
-volumes:
-  mysql_data:
+      - PORT=5000
+      - MAIL_HOST=smtp.gmail.com
+      - MAIL_PORT=465
+      - MAIL_USER=yancarojas2003@gmail.com
+      - MAIL_PASS=bokk vora jypi yxlh
+      - MAIL_SECURE=true
+      - MAIL_FROM=Versanet
