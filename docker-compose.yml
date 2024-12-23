@@ -8,7 +8,7 @@ services:
     environment:
       - MYSQL_HOST=versanet.mysql.database.azure.com
       - MYSQL_USER=UserVersanetDb
-      - MYSQL_PASSWORD=Versanet$2024
+      - MYSQL_PASSWORD=versanetdb$2024
       - MYSQL_DATABASE=versanetbd
       - MYSQL_PORT=3306
       - JWT_SECRET=mysecretkey
