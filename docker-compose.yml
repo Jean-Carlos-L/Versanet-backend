@@ -6,9 +6,9 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - MYSQL_HOST=mysql
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=root
+      - MYSQL_HOST=versanet.mysql.database.azure.com
+      - MYSQL_USER=UserVersanetDb
+      - MYSQL_PASSWORD=Versanet$2024
       - MYSQL_DATABASE=versanetbd
       - MYSQL_PORT=3306
       - JWT_SECRET=mysecretkey
