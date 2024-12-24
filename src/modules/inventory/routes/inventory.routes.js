@@ -13,7 +13,7 @@ import { authMiddleware } from "../../../common/core/auth.middleware.js";
 
 const router = express.Router();
 
-router.use(authMiddleware);
+//router.use(authMiddleware);
 
 router.get("/", getInventories);
 router.get("/count", getCountInventories);
