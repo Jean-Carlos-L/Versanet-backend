@@ -17,6 +17,8 @@ export class Database {
       );
     }
 
+    console.log(MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_PORT);
+
     this.sequelize = new Sequelize(MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, {
       host: MYSQL_HOST,
       dialect: "mysql",

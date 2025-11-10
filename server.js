@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import path from "path"
 
 // 🔹 Conexión a la base de datos (Singleton)
 import { Database } from "./src/infrastructure/db/index.js";
@@ -41,6 +42,9 @@ app.use(cookieParser());
 app.get("/health", async (req, res) => {
   res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
 });
+
+// ==== Assets ====
+app.use("/assets", express.static(path.join(path.dirname(""), "/src/assets")))
 
 // ===== Public Routes=====
 app.use("/api/auth", authRoutes);

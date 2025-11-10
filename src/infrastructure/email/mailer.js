@@ -18,7 +18,7 @@ class Mailer {
     Mailer.instance = this;
   }
 
-  async sendMail({ to, subject, html, text }) {
+  async sendMail({ to, subject, html, text, attachments }) {
     try {
       const info = await this.transporter.sendMail({
         from: `"${MAIL_FROM}" <${MAIL_USER}>`,
@@ -26,6 +26,7 @@ class Mailer {
         subject,
         text,
         html,
+        attachments,
       });
       console.log(`📧 Email sent to ${to}: ${info.messageId}`);
       return info;
