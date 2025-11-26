@@ -14,18 +14,20 @@ import userRoutes from "./src/application/users/controllers/userController.js";
 import customerRoutes from "./src/application/customers/controllers/customerController.js";
 import roleRoutes from "./src/application/roles/controllers/roleController.js";
 import permissionRoutes from "./src/application/auth/controllers/permissionController.js";
+import planRoutes from "./src/application/plans/controllers/planController.js";
+import invoiceRoutes from "./src/application/invoice/controllers/invoiceController.js";
 
 // 🔹 Middlewares globales
 import { errorHandler } from "./src/infra_http/middlewares/errorHandler.js";
 import { authMiddleware } from "./src/infra_http/middlewares/authMiddleware.js";
 
 
-// import {
-//   initializeDefaultPermissions,
-//   initializeDefaultRolePermissions,
-//   initializeDefaultRoles,
-//   initializeDefaultUsers,
-// } from "./src/infrastructure/db/initializeDefaultData.js";
+import {
+  initializeDefaultPermissions,
+  initializeDefaultRolePermissions,
+  initializeDefaultRoles,
+  initializeDefaultUsers,
+} from "./src/infrastructure/db/initializeDefaultData.js";
 
 const app = express();
 
@@ -55,6 +57,8 @@ app.use("/api/permissions", permissionRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/customers", customerRoutes);
+app.use("/api/plans", planRoutes);
+app.use("/api/invoices", invoiceRoutes);
 
 // ===== Error handling =====
 app.use(errorHandler);
@@ -66,7 +70,7 @@ const PORT = process.env.PORT || 3000;
   try {
     await Database.getInstance().connect();
 
-    // const sequelize = Database.getInstance().getConnection();
+    const sequelize = Database.getInstance().getConnection();
 
     // Initialize default data
     // await initializeDefaultPermissions(sequelize.models.Permission);

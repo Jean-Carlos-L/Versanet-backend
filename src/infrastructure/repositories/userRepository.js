@@ -26,6 +26,7 @@ export class UserRepository {
       nombres: userData.name,
       correo_electronico: userData.email,
       rol_id: userData.role,
+      codigo_recuperacion: userData.recoveryCode
     };
 
     if (userData.passwordHash) {
@@ -51,6 +52,7 @@ export class UserRepository {
       email: updatedUserRecord.correo_electronico,
       passwordHash: updatedUserRecord.contrasena,
       role: updatedUserRecord.rol_id,
+      recoveryCode: updatedUserRecord.codigo_recuperacion,
     });
   }
 
@@ -79,6 +81,7 @@ export class UserRepository {
       name: userRecord.nombres,
       email: userRecord.correo_electronico,
       passwordHash: userRecord.contrasena,
+      recoveryCode: userRecord.codigo_recuperacion,
       role: new RoleEntity({
         id: userRecord.role.id,
         description: userRecord.role.descripcion,
@@ -115,6 +118,7 @@ export class UserRepository {
           name: userRecord.nombres,
           email: userRecord.correo_electronico,
           passwordHash: userRecord.contrasena,
+          recoveryCode: userRecord.codigo_recuperacion,
           role: new RoleEntity({
             id: userRecord.role.id,
             description: userRecord.role.descripcion,
@@ -158,6 +162,7 @@ export class UserRepository {
       name: userRecord.nombres,
       email: userRecord.correo_electronico,
       passwordHash: userRecord.contrasena,
+      recoveryCode: userRecord.codigo_recuperacion,
       role: new RoleEntity({
         id: userRecord.role.id,
         description: userRecord.role.descripcion,
@@ -174,5 +179,19 @@ export class UserRepository {
     });
   }
 
-  // Otros métodos del repositorio pueden ir aquí
+  async updateRecoveryCode(userId, code) {
+    const [updatedRowsCount] = await UserModel.update(
+      { codigo_recuperacion: code },
+      { where: { id: userId, eliminado: false } }
+    );
+    return updatedRowsCount > 0;
+  }
+
+  async updatePassword(userId, hashedPassword) {
+    const [updatedRowsCount] = await UserModel.update(
+      { contrasena: hashedPassword },
+      { where: { id: userId, eliminado: false } }
+    );
+    return updatedRowsCount > 0;
+  }
 }

@@ -17,8 +17,6 @@ export class Database {
       );
     }
 
-    console.log(MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_PORT);
-
     this.sequelize = new Sequelize(MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, {
       host: MYSQL_HOST,
       dialect: "mysql",
@@ -35,7 +33,7 @@ export class Database {
 
   async syncModels() {
     try {
-      await this.sequelize.sync({ force: false });
+      await this.sequelize.sync({ force: true });
       console.log("🟢 All models were synchronized successfully.");
     } catch (error) {
       console.error("🔴 Error synchronizing models:", error.message);

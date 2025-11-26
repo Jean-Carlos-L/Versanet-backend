@@ -1,5 +1,9 @@
 import express from "express";
-import { login } from "../usecases/login.js";
+import {
+  login,
+  generateCodeToRecoverPass,
+  recoverPassword,
+} from "../usecases/index.js";
 import { buildLoginValidatorChain } from "../../../infra_http/middlewares/validators/loginValidator.js";
 
 const router = express.Router();
@@ -29,6 +33,26 @@ router.post("/login", async (req, res) => {
 
 router.post("/logout", (req, res) => {
   res.clearCookie("access_token").json({ message: "Logged out successfully" });
+});
+
+router.post("/generate-recovery-code", async (req, res) => {
+  const { email } = req.body;
+  try {
+    const code = await generateCodeToRecoverPass(email);
+    res.json({ message: "Recovery code generated and sent to email.", code });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/recover-password", async (req, res) => {
+  const { email, password, code } = req.body;
+  try {
+    const result = await recoverPassword({ email, password, code });
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 export default router;

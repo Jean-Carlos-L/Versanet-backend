@@ -24,6 +24,10 @@ export const UserModel = sequelize.define(
       allowNull: false,
       defaultValue: "activo",
     },
+    codigo_recuperacion: {
+      type: DataTypes.STRING(6),
+      allowNull: true,
+    },
     eliminado: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
