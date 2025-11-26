@@ -14,6 +14,8 @@ import userRoutes from "./src/application/users/controllers/userController.js";
 import customerRoutes from "./src/application/customers/controllers/customerController.js";
 import roleRoutes from "./src/application/roles/controllers/roleController.js";
 import permissionRoutes from "./src/application/auth/controllers/permissionController.js";
+import inventoryRoutes from "./src/application/inventory/controllers/inventoryController.js";
+import contractRoutes from "./src/application/contract/controllers/contractController.js";
 
 // 🔹 Middlewares globales
 import { errorHandler } from "./src/infra_http/middlewares/errorHandler.js";
@@ -38,6 +40,14 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(cookieParser());
 
+// Forzar no-cache en las rutas /api para evitar respuestas 304 durante desarrollo
+app.use('/api', (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
+
 // ===== Health Check Route =====
 app.get("/health", async (req, res) => {
   res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
@@ -50,11 +60,13 @@ app.use("/assets", express.static(path.join(path.dirname(""), "/src/assets")))
 app.use("/api/auth", authRoutes);
 
 // ===== Protected Routes =====
-app.use(authMiddleware);
+//app.use(authMiddleware);
 app.use("/api/permissions", permissionRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/customers", customerRoutes);
+app.use("/api/inventory", inventoryRoutes);
+app.use("/api/contracts", contractRoutes);
 
 // ===== Error handling =====
 app.use(errorHandler);
@@ -68,7 +80,7 @@ const PORT = process.env.PORT || 3000;
 
     // const sequelize = Database.getInstance().getConnection();
 
-    // Initialize default data
+    //Initialize default data
     // await initializeDefaultPermissions(sequelize.models.Permission);
     // await initializeDefaultRoles(sequelize.models.Role);
     // await initializeDefaultRolePermissions(sequelize.models.RolePermission);

@@ -1,11 +1,14 @@
 import express from "express";
 
-import { getAllInventories } from "../usecases/listInventory.js";
-import { getInventoryCount } from "../usecases/countInventory.js";
-import { getInventoryById } from "../usecases/getInventoryId.js";
-import { registerInventory } from "../usecases/registerInventory.js";
-import { updateInventory } from "../usecases/editInventory.js";
-import { deleteInventory } from "../usecases/deleteInventory.js";
+import {
+  registerInventory,
+  getAllInventories,
+  getInventoryById,
+  updateInventory,
+  deleteInventory,
+  getInventoryCount,
+} from "../usecases/index.js";
+
 
 const router = express.Router();
 

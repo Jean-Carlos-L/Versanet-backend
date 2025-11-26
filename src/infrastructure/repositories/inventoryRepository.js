@@ -76,7 +76,7 @@ export class InventoryRepository {
       where.direccion_red = { [Op.like]: `%${filters.direccion_red.trim()}%` };
     }
     if (filters.tipo_equipo && filters.tipo_equipo.trim()) {
-      where.tipo_equipo = filters.tipo_equipo.trim();
+      where.tipo_equipo ={[Op.like]: `%${filters.tipo_equipo.trim()}%` };
     }
     if (filters.estado != null && filters.estado !== '') {
       const estadoMapped = 
