@@ -12,13 +12,13 @@ export const PlanModel = sequelize.define(
       defaultValue: DataTypes.UUIDV4,
     },
     descripcion: { type: DataTypes.STRING, allowNull: false },
-    caracateristicas: { type: DataTypes.TEXT, allowNull: false },
+    caracteristicas: { type: DataTypes.TEXT, allowNull: false },
     precio: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-    duracionMeses: { type: DataTypes.INTEGER, allowNull: false },
+    duracion: { type: DataTypes.INTEGER, allowNull: false },
     estado: {
-      type: DataTypes.STRING,
+      type: DataTypes.TINYINT,
       allowNull: false,
-      defaultValue: "activo",
+      defaultValue: 1,
     },
     eliminado: {
       type: DataTypes.BOOLEAN,

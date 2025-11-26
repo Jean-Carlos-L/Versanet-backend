@@ -147,7 +147,9 @@ CREATE TABLE `planes` (
   `descripcion` varchar(255) DEFAULT NULL,
   `caracteristicas` text DEFAULT NULL,
   `precio` decimal(10,2) DEFAULT NULL,
+  `duracion` int DEFAULT NULL,
   `estado` tinyint(1) DEFAULT NULL,
+  `eliminado` tinyint(1) NOT NULL DEFAULT 0,
   `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
   `fecha_actualizacion` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -481,7 +483,9 @@ CREATE TABLE `historial_planes` (
   `descripcion` VARCHAR(255) DEFAULT NULL,
   `caracteristicas` TEXT DEFAULT NULL,
   `precio` DECIMAL(10,2) DEFAULT NULL,
+  `duracion` INT DEFAULT NULL,
   `estado` TINYINT(1) DEFAULT NULL,
+  `eliminado` TINYINT(1) DEFAULT NULL,
   `fecha_creacion` TIMESTAMP NULL DEFAULT NULL,
   `fecha_actualizacion` TIMESTAMP NULL DEFAULT NULL,
   `accion` VARCHAR(10) NOT NULL,
