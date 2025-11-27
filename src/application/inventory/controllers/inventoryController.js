@@ -35,7 +35,7 @@ router.get("/", async (req, res) => {
       mac: req.query.mac || "",
       direccion_red: req.query.direccion_red || "",
       tipo_equipo: req.query.tipo_equipo || "",
-      estado: req.query.estado || "activo",
+      estado: req.query.estado || "",
     };
 
     const { inventories, total } = await getAllInventories({
@@ -65,7 +65,7 @@ router.get("/count", async (req, res) => {
       mac: req.query.mac || "",
       direccion_red: req.query.direccion_red || "",
       tipo_equipo: req.query.tipo_equipo || "",
-      estado: req.query.estado || "activo",
+      estado: req.query.estado || "",
     };
     const total = await getInventoryCount(filters);
     res.status(200).json({ total });
@@ -91,6 +91,7 @@ router.put("/:id", async (req, res) => {
     const updatedInventory = await updateInventory(req.params.id, req.body);
     res.status(200).json(updatedInventory);
   } catch (err) {
+     console.error(err);
     if (err.message === "Inventario no encontrado o no actualizado") {
       return res.status(404).json({ error: err.message });
     }

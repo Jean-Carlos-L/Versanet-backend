@@ -1,16 +1,16 @@
 import InventoryEntity from "../../domain/entities/Inventory.js";
-import { InventoryModel} from "../models/inventoryModel.js";
+import { InventoryModel } from "../models/inventoryModel.js";
 import { Op } from "sequelize";
 
 export class InventoryRepository {
   async create(inventoryData) {
     const inventoryRecord = await InventoryModel.create({
       id: inventoryData.id,
-      referencia: inventoryData.referencia,
-      direccion_red: inventoryData.direccion_red,
-      tipo_equipo: inventoryData.tipo_equipo,
-      cantidad: inventoryData.cantidad,
-      estado: inventoryData.estado,
+      referencia: inventoryData.reference,
+      direccion_red: inventoryData.network_address,
+      tipo_equipo: inventoryData.type,
+      cantidad: inventoryData.quantity,
+      estado: inventoryData.status,
     });
     return new InventoryEntity({
       id: inventoryRecord.id,
@@ -33,9 +33,9 @@ export class InventoryRepository {
     });
   }
 
-  async findAndCountAll({ filters = {}, offset = 0, limit = 10 } = {}) {
+  async findAndCountAll({ filters = {}, offset, limit } = {}) {
     const where = { eliminado: false };
-
+    console.log("Filters in repository:", filters);
     if (filters.referencia && filters.referencia.trim()) {
       where.referencia = { [Op.like]: `%${filters.referencia.trim()}%` };
     }
@@ -45,25 +45,30 @@ export class InventoryRepository {
     if (filters.tipo_equipo && filters.tipo_equipo.trim()) {
       where.tipo_equipo = filters.tipo_equipo.trim();
     }
-    if (filters.estado != null && filters.estado !== '') {
-      const estadoMapped = 
-        filters.estado === "1" || filters.estado === 1 || filters.estado === "activo" 
-        ? "activo" 
-        : "inactivo";
+    if (filters.estado != null && filters.estado !== "") {
+      const estadoMapped =
+        filters.estado === "1" ||
+        filters.estado === 1 ||
+        filters.estado === "activo"
+          ? "activo"
+          : "inactivo";
       where.estado = estadoMapped;
     }
 
     const options = {
       where,
-      offset: parseInt(offset) || 0,
-      limit: parseInt(limit) || 10,
-      order: [['createdAt', 'DESC']],
-      attributes: { exclude: ['eliminado'] },
+      order: [["createdAt", "DESC"]],
+      attributes: { exclude: ["eliminado"] },
     };
+
+    if (offset != null && limit != null) {
+      options.offset = offset;
+      options.limit = limit;
+    }
 
     const result = await InventoryModel.findAndCountAll(options);
 
-    return result;  
+    return result;
   }
 
   async count({ filters = {} } = {}) {
@@ -76,13 +81,15 @@ export class InventoryRepository {
       where.direccion_red = { [Op.like]: `%${filters.direccion_red.trim()}%` };
     }
     if (filters.tipo_equipo && filters.tipo_equipo.trim()) {
-      where.tipo_equipo ={[Op.like]: `%${filters.tipo_equipo.trim()}%` };
+      where.tipo_equipo = { [Op.like]: `%${filters.tipo_equipo.trim()}%` };
     }
-    if (filters.estado != null && filters.estado !== '') {
-      const estadoMapped = 
-        filters.estado === "1" || filters.estado === 1 || filters.estado === "activo" 
-        ? "activo" 
-        : "inactivo";
+    if (filters.estado != null && filters.estado !== "") {
+      const estadoMapped =
+        filters.estado === "1" ||
+        filters.estado === 1 ||
+        filters.estado === "activo"
+          ? "activo"
+          : "inactivo";
       where.estado = estadoMapped;
     }
 
@@ -100,9 +107,17 @@ export class InventoryRepository {
   }
 
   async update(id, data) {
+    const payload = {
+      referencia: data.reference,
+      direccion_red: data.network_address,
+      tipo_equipo: data.type,
+      cantidad: data.quantity,
+      estado: data.status,
+    };
+
     const [updatedCount] = await InventoryModel.update(
       {
-        ...data,
+        ...payload,
         updatedAt: new Date(),
       },
       {
@@ -110,7 +125,7 @@ export class InventoryRepository {
           id: id,
           eliminado: false,
         },
-        returning: true,  // Para PostgreSQL, en MySQL usa individualHooks
+        returning: true, // Para PostgreSQL, en MySQL usa individualHooks
       }
     );
     if (updatedCount === 0) return null;

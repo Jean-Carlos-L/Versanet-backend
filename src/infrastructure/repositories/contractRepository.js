@@ -13,11 +13,6 @@ export class ContractRepository {
     const clienteId =
       contractData.cliente_id ?? contractData.customer_id ?? null;
 
-    console.log("ContractRepository.create - incoming:", {
-      ...contractData,
-      clienteId,
-    });
-
     const contractRecord = await ContractModel.create({
       id: contractData.id,
       cliente_id: clienteId,
@@ -57,8 +52,6 @@ export class ContractRepository {
     if (clienteId) where.cliente_id = clienteId;
     if (planId) where.plan_id = planId;
     if (estado != null) where.estado = estado;
-
-    console.log("ContractRepository.list - where:", where);
 
     const rows = await ContractModel.findAll({
       where,
@@ -233,18 +226,6 @@ export class ContractRepository {
       as: "inventory",
       attributes: { exclude: ["eliminado"] },
     });
-
-    console.log(
-      "ContractRepository.findAndCountAll - where:",
-      where,
-      "include filters:",
-      { customerName, customerDocument, planName },
-      "offset:",
-      offset,
-      "limit:",
-      limit
-    );
-
     const result = await ContractModel.findAndCountAll({
       where,
       include,
@@ -316,29 +297,33 @@ export class ContractRepository {
           model: CustomerModel,
           as: "customer",
           attributes: { exclude: ["eliminado"] },
+          required: false,
         },
         {
           model: PlanModel,
           as: "plan",
           attributes: { exclude: ["eliminado"] },
+          required: false,
         },
         {
           model: InventoryModel,
           as: "inventory",
           attributes: { exclude: ["eliminado"] },
+          required: false,
         },
       ],
     });
     if (!r) return null;
+
     return new ContractEntity({
       id: r.id,
-      customer_id: r.customer_id,
+      cliente_id: r.cliente_id,
       plan_id: r.plan_id,
-      start_date: r.start_date,
-      end_date: r.end_date,
-      inventory_id: r.inventory_id,
-      status: r.status,
-      deleted: r.deleted,
+      fecha_inicio: r.fecha_inicio,
+      fecha_fin: r.fecha_fin,
+      equipo_id: r.equipo_id,
+      estado: r.estado,
+      eliminado: r.eliminado,
       createdAt: r.createdAt,
       updatedAt: r.updatedAt,
       customer: r.customer
@@ -375,53 +360,55 @@ export class ContractRepository {
     });
   }
 
-  async update(id, data = {}) {
-    if (!id) return null;
+  async update(id, data) {
+   const contractRecord = await ContractModel.findByPk(id);
+    if (!contractRecord) {
+     throw new Error("Contract not found");
+    }
 
-    // Find instance first
-    const instance = await ContractModel.findOne({
-      where: { id: id, eliminado: false },
+    contractRecord.cliente_id = data.customer_id;
+    contractRecord.plan_id = data.plan_id;
+    contractRecord.fecha_inicio = data.start_date;
+    contractRecord.fecha_fin = data.end_date;
+    contractRecord.equipo_id = data.inventory_id;
+    contractRecord.estado = data.status !== undefined ? data.status : contractRecord.estado;
+
+    await contractRecord.save();
+    return new ContractEntity({
+      id: contractRecord.id,
+      cliente_id: contractRecord.cliente_id,
+      plan_id: contractRecord.plan_id,
+      fecha_inicio: contractRecord.fecha_inicio,
+      fecha_fin: contractRecord.fecha_fin,
+      equipo_id: contractRecord.equipo_id,
+      estado: contractRecord.estado,
+      eliminado: contractRecord.eliminado,
+      createdAt: contractRecord.createdAt,
+      updatedAt: contractRecord.updatedAt,
     });
-    if (!instance) return null;
+  }
 
-    const has = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
-    const updates = {};
-    if (data.cliente_id ?? data.customer_id) {
-      updates.cliente_id = data.cliente_id ?? data.customer_id;
-      instance.cliente_id = updates.cliente_id;
-    }
-    if (data.plan_id ?? data.planId) {
-      updates.plan_id = data.plan_id ?? data.planId;
-      instance.plan_id = updates.plan_id;
-    }
-    if (data.fecha_inicio ?? data.start_date) {
-      updates.fecha_inicio = data.fecha_inicio ?? data.start_date;
-      instance.fecha_inicio = updates.fecha_inicio;
-    }
-    if (data.fecha_fin ?? data.end_date) {
-      updates.fecha_fin = data.fecha_fin ?? data.end_date;
-      instance.fecha_fin = updates.fecha_fin;
-    }
-    // Accept English alias 'status' as well as 'estado'
-    if (has(data, 'estado') || has(data, 'status')) {
-      updates.estado = has(data, 'estado') ? data.estado : data.status;
-      instance.estado = updates.estado;
-    }
-    if (has(data, "equipo_id")) {
-      updates.equipo_id = data.equipo_id;
-      instance.equipo_id = data.equipo_id;
+  async toggleStatus(id) {
+    const contractRecord = await ContractModel.findByPk(id);
+    if (!contractRecord) {
+      throw new Error("Contract not found");
     }
 
-    if (has(data, "inventory_id")) {
-      updates.inventory_id = data.inventory_id;
-      instance.inventory_id = data.inventory_id;
-    }
+    contractRecord.estado = contractRecord.estado === "activo" ? "inactivo" : "activo";
+    await contractRecord.save();
 
-    instance.updatedAt = new Date();
-
-    const saved = await instance.save();
-
-    return this.findById(id);
+    return new ContractEntity({
+      id: contractRecord.id,
+      cliente_id: contractRecord.cliente_id,
+      plan_id: contractRecord.plan_id,
+      fecha_inicio: contractRecord.fecha_inicio,
+      fecha_fin: contractRecord.fecha_fin,
+      equipo_id: contractRecord.equipo_id,
+      estado: contractRecord.estado,
+      eliminado: contractRecord.eliminado,
+      createdAt: contractRecord.createdAt,
+      updatedAt: contractRecord.updatedAt,
+    });
   }
 
   async softDelete(id) {
