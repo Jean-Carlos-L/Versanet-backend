@@ -12,27 +12,27 @@ export class EditContractDTO {
 
     if (customer_id != null) dto.customer_id = String(customer_id).trim();
     if (plan_id != null) dto.plan_id = String(plan_id).trim();
-    if (Object.prototype.hasOwnProperty.call(payload, 'inventory_id')) dto.inventory_id = payload.equipment_id;
-    if (Object.prototype.hasOwnProperty.call(payload, 'status')) dto.status = payload.status;
+    if (inventory_id) dto.inventory_id = String(inventory_id).trim();
+    if (status) dto.status = String(status).trim();
 
     if (start_date != null) {
       const s = new Date(start_date);
-      if (Number.isNaN(s.getTime())) throw new Error('Invalid start_date');
-      dto.start_date = s.toISOString();
+      if (Number.isNaN(s.getTime())) throw new Error("Invalid start_date");
+      dto.start_date = start_date;
     }
     if (end_date != null) {
       const e = new Date(end_date);
-      if (Number.isNaN(e.getTime())) throw new Error('Invalid end_date');
-      dto.end_date = e.toISOString();
+      if (Number.isNaN(e.getTime())) throw new Error("Invalid end_date");
+      dto.end_date = end_date;
     }
 
     if (dto.start_date && dto.end_date) {
       const s = new Date(dto.start_date);
       const e = new Date(dto.end_date);
-      if (s >= e) throw new Error('start_date must be before end_date');
+      if (s >= e) throw new Error("start_date must be before end_date");
     }
 
-    this.payload = dto;
+    this.payload = {...dto}
   }
 }
 

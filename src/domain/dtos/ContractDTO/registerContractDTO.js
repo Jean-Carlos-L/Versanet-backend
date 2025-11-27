@@ -1,5 +1,5 @@
 export class RegisterContractDTO {
-    constructor({ customer_id, plan_id, start_date, end_date, equipment_id } = {}) {
+    constructor({ customer_id, plan_id, start_date, end_date, inventory_id } = {}) {
         // aceptar aliases y normalizar
         const cid = customer_id ?? null;
         const start = start_date ?? null;
@@ -24,6 +24,6 @@ export class RegisterContractDTO {
         this.fecha_inicio = startDate.toISOString();
         this.fecha_fin = endDate.toISOString();
 
-        this.equipo_id = equipo_id ?? null; 
+        this.equipo_id = inventory_id ?? null; 
     }
 }

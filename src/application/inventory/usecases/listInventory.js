@@ -8,9 +8,9 @@ async function getAllInventories({
     mac = '', 
     direccion_red = '', 
     tipo_equipo = '', 
-    estado = 'activo', 
-    offset = 0, 
-    limit = 10 
+    estado = '', 
+    offset, 
+    limit
 } = {}) {
     const filters = { referencia, mac, direccion_red, tipo_equipo, estado };
     

@@ -1,36 +1,37 @@
 import { ContractRepository } from "../../../../infrastructure/repositories/contractRepository.js";
 
 class Handler {
-    constructor() {
-        this.contractRepository = new ContractRepository();
-    }
+  constructor() {
+    this.contractRepository = new ContractRepository();
+  }
 
-    setNext(next) {
-        this.next = next;
-        return next;
-    }
+  setNext(next) {
+    this.next = next;
+    return next;
+  }
 
-    async handle(reqBody) {
-        if (this.next) return this.next.handle(reqBody);
-        return { ok: true };
-    }
+  async handle(reqBody) {
+    if (this.next) return this.next.handle(reqBody);
+    return { ok: true };
+  }
 }
 
 class RequiredFieldsHandler extends Handler {
-    async handle(body) {
-        const { cliente_id, plan_id, fecha_inicio, fecha_fin, estado } = body;
-        if (!cliente_id || !plan_id || !fecha_inicio || !fecha_fin)
-            return {
-                ok: false,
-                error: "cliente_id, plan_id, fecha_inicio y fecha_fin son requeridos",
-            };
-        return super.handle(body);
-    }
+  async handle(body) {
+    const { customer_id, plan_id, start_date, end_date } = body;
+    if (!customer_id || !plan_id || !start_date || !end_date)
+      return {
+        ok: false,
+        error:
+          "Los campos de cliente, plan, fecha de inicio y fecha de fin son obligatorios.",
+      };
+    return super.handle(body);
+  }
 }
 
 function buildRegisterContractValidatorChain() {
-    const requiredFieldsHandler = new RequiredFieldsHandler();
-    return requiredFieldsHandler;
+  const requiredFieldsHandler = new RequiredFieldsHandler();
+  return requiredFieldsHandler;
 }
 
 export { buildRegisterContractValidatorChain };

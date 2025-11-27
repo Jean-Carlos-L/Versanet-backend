@@ -1,11 +1,11 @@
 export class RegisterInventoryDTO {
-    constructor({ referencia, direccion_red, tipo_equipo, cantidad }) {
-        if (!referencia || !direccion_red || !tipo_equipo || cantidad == null) {
-            throw new Error(`Faltan datos requeridos para registrar el inventario. Los campos que faltan son: ${!referencia ? 'referencia ' : ''}${!direccion_red ? 'direccion_red ' : ''}${!tipo_equipo ? 'tipo_equipo ' : ''}${cantidad == null ? 'cantidad' : ''}`.trim());
+    constructor({ reference, network_address, type, quantity }) {
+        if (!reference || !network_address || !type || quantity == null) {
+            throw new Error(`Faltan datos requeridos para registrar el inventario. Los campos que faltan son: ${!reference ? 'reference ' : ''}${!network_address ? 'network_address ' : ''}${!type ? 'type ' : ''}${quantity == null ? 'quantity' : ''}`.trim());
         }
-        this.referencia = referencia.trim();
-        this.direccion_red = direccion_red.trim();
-        this.tipo_equipo = tipo_equipo.trim();
-        this.cantidad = cantidad;
+        this.reference = reference.trim();
+        this.network_address = network_address.trim();
+        this.type = type.trim();
+        this.quantity = quantity;
     }
 }
