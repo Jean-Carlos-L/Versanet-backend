@@ -6,23 +6,29 @@ import {
   InventoryModel,
 } from "../models/index.js";
 import { Op } from "sequelize";
+import ActivityLogRepository from "./activityLogRepository.js";
 
 export class ContractRepository {
-  async create(contractData) {
+  async create(contractData, actor = null, options = {}) {
+    const createOpts = {};
+    if (options.transaction) createOpts.transaction = options.transaction;
     // Normalizar posibles claves: cliente_id (es) o customer_id (en)
     const clienteId =
       contractData.cliente_id ?? contractData.customer_id ?? null;
 
-    const contractRecord = await ContractModel.create({
-      id: contractData.id,
-      cliente_id: clienteId,
-      plan_id: contractData.plan_id,
-      fecha_inicio: contractData.fecha_inicio,
-      fecha_fin: contractData.fecha_fin,
-      equipo_id: contractData.equipo_id,
-      estado: contractData.estado,
-      eliminado: contractData.eliminado,
-    });
+    const contractRecord = await ContractModel.create(
+      {
+        id: contractData.id,
+        cliente_id: clienteId,
+        plan_id: contractData.plan_id,
+        fecha_inicio: contractData.fecha_inicio,
+        fecha_fin: contractData.fecha_fin,
+        equipo_id: contractData.equipo_id,
+        estado: contractData.estado,
+        eliminado: contractData.eliminado,
+      },
+      createOpts
+    );
     return new ContractEntity({
       id: contractRecord.id,
       cliente_id: contractRecord.cliente_id,
@@ -360,12 +366,14 @@ export class ContractRepository {
     });
   }
 
-  async update(id, data) {
+  async update(id, data, actor = null, options = {}) {
+   const updateOpts = {};
+   if (options.transaction) updateOpts.transaction = options.transaction;
+
    const contractRecord = await ContractModel.findByPk(id);
     if (!contractRecord) {
      throw new Error("Contract not found");
     }
-
     contractRecord.cliente_id = data.customer_id;
     contractRecord.plan_id = data.plan_id;
     contractRecord.fecha_inicio = data.start_date;
@@ -373,7 +381,25 @@ export class ContractRepository {
     contractRecord.equipo_id = data.inventory_id;
     contractRecord.estado = data.status !== undefined ? data.status : contractRecord.estado;
 
-    await contractRecord.save();
+    await contractRecord.save(updateOpts);
+
+    // Audit
+    try {
+      if (actor) {
+        const actorName = actor.nombres || actor.name || actor.email || null;
+        const details = `Contrato actualizado: id=${id}, estado=${contractRecord.estado}`;
+        await ActivityLogRepository.create({
+          actor_id: actor.id || null,
+          actor_name: actorName,
+          action: "update",
+          entity: "contract",
+          entity_id: id,
+          details,
+        }, { transaction: options.transaction });
+      }
+    } catch (e) {
+      console.error('Activity log (contract update) failed:', e && e.message ? e.message : e);
+    }
     return new ContractEntity({
       id: contractRecord.id,
       cliente_id: contractRecord.cliente_id,
@@ -388,14 +414,33 @@ export class ContractRepository {
     });
   }
 
-  async toggleStatus(id) {
+  async toggleStatus(id, actor = null, options = {}) {
     const contractRecord = await ContractModel.findByPk(id);
     if (!contractRecord) {
       throw new Error("Contract not found");
     }
 
     contractRecord.estado = contractRecord.estado === "activo" ? "inactivo" : "activo";
-    await contractRecord.save();
+    const updateOpts = {};
+    if (options.transaction) updateOpts.transaction = options.transaction;
+    await contractRecord.save(updateOpts);
+
+    try {
+      if (actor) {
+        const actorName = actor.nombres || actor.name || actor.email || null;
+        const details = `Contrato cambió estado a: ${contractRecord.estado}`;
+        await ActivityLogRepository.create({
+          actor_id: actor.id || null,
+          actor_name: actorName,
+          action: "toggle-status",
+          entity: "contract",
+          entity_id: id,
+          details,
+        }, { transaction: options.transaction });
+      }
+    } catch (e) {
+      console.error('Activity log (contract toggle) failed:', e && e.message ? e.message : e);
+    }
 
     return new ContractEntity({
       id: contractRecord.id,
@@ -411,7 +456,7 @@ export class ContractRepository {
     });
   }
 
-  async softDelete(id) {
+  async softDelete(id, actor = null, options = {}) {
     if (!id) return false;
     const instance = await ContractModel.findOne({
       where: { id: id, eliminado: false },
@@ -419,7 +464,24 @@ export class ContractRepository {
     if (!instance) return false;
     instance.eliminado = true;
     instance.updatedAt = new Date();
-    await instance.save();
+    const updateOpts = {};
+    if (options.transaction) updateOpts.transaction = options.transaction;
+    await instance.save(updateOpts);
+    // Audit delete
+    try {
+      const actorName = actor?.nombres || actor?.name || actor?.email || null;
+      const details = `Contrato eliminado: id=${instance.id}`;
+      await ActivityLogRepository.create({
+        actor_id: actor?.id || null,
+        actor_name: actorName,
+        action: "delete",
+        entity: "contract",
+        entity_id: instance.id,
+        details,
+      }, { transaction: options.transaction });
+    } catch (e) {
+      console.error('Activity log (contract delete) failed:', e && e.message ? e.message : e);
+    }
     return true;
   }
 

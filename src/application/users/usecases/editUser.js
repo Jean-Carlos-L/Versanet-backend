@@ -3,15 +3,15 @@ import { NotificationBuilder } from "../../../infrastructure/email/notificationB
 import { EmailStrategy } from "../../../infrastructure/email/notificationStrategies.js";
 import AuthService from "../../../infrastructure/auth/authService.js";
 import { EditUserDTO } from "../../../domain/dtos/editUserDTO.js";
+import { UserModel } from "../../../infrastructure/models/index.js";
 
 const mailer = new EmailStrategy();
 const notificationBuilder = new NotificationBuilder();
 const userRepository = new UserRepository();
 
-async function editUser(userId, userInput) {
+async function editUser(userId, userInput, actor = null) {
   const userDTO = new EditUserDTO(userInput);
   let existingUser = await userRepository.findById(userId);
-  console.log("Existing User:", existingUser);
   if (!existingUser) {
     const error = new Error("Usuario no encontrado.");
     error.status = 404;
@@ -30,26 +30,37 @@ async function editUser(userId, userInput) {
     userDTO.passwordHash = hashedPassword;
   }
 
-  const updatedUser = await userRepository.update(userId, userDTO);
-  
+  const t = await UserModel.sequelize.transaction();
   try {
-    const notification = notificationBuilder
-      .to(updatedUser.email)
-      .subject("¡Tus datos han sido actualizados!")
-      .html(
-        `<h1>Hola ${updatedUser.name},</h1><p>Tu información en Versanet ha sido actualizada correctamente.</p>`
-      )
-      .build();
+    const updatedUser = await userRepository.update(userId, userDTO, actor, { transaction: t });
+    await t.commit();
 
-    await mailer.send(notification);
+    try {
+      const notification = notificationBuilder
+        .to(updatedUser.email)
+        .subject("¡Tus datos han sido actualizados!")
+        .html(
+          `<h1>Hola ${updatedUser.name},</h1><p>Tu información en Versanet ha sido actualizada correctamente.</p>`
+        )
+        .build();
+
+      await mailer.send(notification);
+    } catch (mailError) {
+      console.error(
+        "⚠️ No se pudo enviar el correo de notificación de actualización:",
+        mailError && mailError.message ? mailError.message : mailError
+      );
+    }
 
     const { passwordHash, ...userWithoutPassword } = updatedUser;
     return userWithoutPassword;
-  } catch (mailError) {
-    console.error(
-      "⚠️ No se pudo enviar el correo de notificación de actualización:",
-      mailError.message
-    );
+  } catch (error) {
+    try {
+      await t.rollback();
+    } catch (rbErr) {
+      console.error("editUser - rollback failed:", rbErr && rbErr.message ? rbErr.message : rbErr);
+    }
+    throw error;
   }
 }
 

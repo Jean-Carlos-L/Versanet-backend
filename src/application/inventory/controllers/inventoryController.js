@@ -8,15 +8,51 @@ import {
   deleteInventory,
   getInventoryCount,
 } from "../usecases/index.js";
-
+import { UserModel } from "../../../infrastructure/models/index.js";
+import ActivityLogRepository from "../../../infrastructure/repositories/activityLogRepository.js";
 
 const router = express.Router();
+
+async function enrichActor(actor) {
+  if (!actor) return null;
+  if (actor.nombres || actor.name) return actor;
+  try {
+    if (actor.id) {
+      const dbUser = await UserModel.findOne({ where: { id: actor.id, eliminado: false }, attributes: { exclude: ["contrasena", "eliminado"] } });
+      if (dbUser) return { ...actor, ...dbUser.toJSON() };
+    }
+    if (actor.email) {
+      const dbUser = await UserModel.findOne({ where: { correo_electronico: actor.email, eliminado: false }, attributes: { exclude: ["contrasena", "eliminado"] } });
+      if (dbUser) return { ...actor, ...dbUser.toJSON() };
+    }
+  } catch (e) {
+    console.error('enrichActor - failed to load user from DB', e && e.message ? e.message : e);
+  }
+  return actor;
+}
 
 router.post("/", async (req, res) => {
   const inventoryData = req.body;
 
   try {
-    const newInventory = await registerInventory(inventoryData);
+    let actor = req.session ? req.session.user : null;
+    actor = await enrichActor(actor);
+    const newInventory = await registerInventory(inventoryData, actor);
+    // Controller-level audit log (API-level)
+    try {
+      const actorName = actor?.nombres || actor?.name || actor?.email || actor?.id || null;
+      await ActivityLogRepository.create({
+        actor_id: actor?.id || null,
+        actor_name: actorName,
+        action: "create",
+        entity: "inventory",
+        entity_id: newInventory?.id || null,
+        details: `${actorName || 'Usuario desconocido'} creó inventario via API: referencia=${newInventory?.referencia}`,
+        metadata: { requestBody: inventoryData, result: newInventory },
+      });
+    } catch (e) {
+      console.error('inventoryController POST - activity log failed:', e && e.message ? e.message : e);
+    }
     res.status(201).json(newInventory);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -88,7 +124,24 @@ router.get("/:id", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   try {
-    const updatedInventory = await updateInventory(req.params.id, req.body);
+    let actor = req.session ? req.session.user : null;
+    actor = await enrichActor(actor);
+    const updatedInventory = await updateInventory(req.params.id, req.body, actor);
+    // Controller-level audit log for update
+    try {
+      const actorName = actor?.nombres || actor?.name || actor?.email || actor?.id || null;
+      await ActivityLogRepository.create({
+        actor_id: actor?.id || null,
+        actor_name: actorName,
+        action: "update",
+        entity: "inventory",
+        entity_id: updatedInventory?.id || req.params.id,
+        details: `${actorName || 'Usuario desconocido'} actualizó inventario via API: id=${req.params.id}`,
+        metadata: { requestBody: req.body, result: updatedInventory },
+      });
+    } catch (e) {
+      console.error('inventoryController PUT - activity log failed:', e && e.message ? e.message : e);
+    }
     res.status(200).json(updatedInventory);
   } catch (err) {
      console.error(err);
@@ -101,7 +154,24 @@ router.put("/:id", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   try {
-    const result = await deleteInventory(req.params.id);
+    let actor = req.session ? req.session.user : null;
+    actor = await enrichActor(actor);
+    const result = await deleteInventory(req.params.id, actor);
+    // Controller-level audit log for delete
+    try {
+      const actorName = actor?.nombres || actor?.name || actor?.email || actor?.id || null;
+      await ActivityLogRepository.create({
+        actor_id: actor?.id || null,
+        actor_name: actorName,
+        action: "delete",
+        entity: "inventory",
+        entity_id: req.params.id,
+        details: `${actorName || 'Usuario desconocido'} eliminó inventario via API: id=${req.params.id}`,
+        metadata: { requestParams: req.params, result },
+      });
+    } catch (e) {
+      console.error('inventoryController DELETE - activity log failed:', e && e.message ? e.message : e);
+    }
     res.status(200).json(result);
   } catch (err) {
     if (err.message === "Inventario no encontrado") {

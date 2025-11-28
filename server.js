@@ -18,6 +18,7 @@ import planRoutes from "./src/application/plans/controllers/planController.js";
 import invoiceRoutes from "./src/application/invoice/controllers/invoiceController.js";
 import inventoryRoutes from "./src/application/inventory/controllers/inventoryController.js";
 import contractRoutes from "./src/application/contract/controllers/contractController.js";
+import activityLogRoutes from "./src/application/activityLogs/controllers/activityLogController.js";
 
 // 🔹 Middlewares globales
 import { errorHandler } from "./src/infra_http/middlewares/errorHandler.js";
@@ -62,7 +63,7 @@ app.use("/assets", express.static(path.join(path.dirname(""), "/src/assets")))
 app.use("/api/auth", authRoutes);
 
 // ===== Protected Routes =====
-//app.use(authMiddleware);
+app.use(authMiddleware);
 app.use("/api/permissions", permissionRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/users", userRoutes);
@@ -71,6 +72,7 @@ app.use("/api/plans", planRoutes);
 app.use("/api/invoices", invoiceRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/contracts", contractRoutes);
+app.use("/api/activity-logs", activityLogRoutes);
 
 // ===== Error handling =====
 app.use(errorHandler);

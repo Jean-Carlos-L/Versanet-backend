@@ -4,6 +4,7 @@ import { PermissionModel } from "./permissionModel.js";
 import { CustomerModel } from "./customerModel.js";
 import { RolePermissionModel } from "./rolePermissionModel.js";
 import { InventoryModel } from "./inventoryModel.js";
+import { ActivityLogModel } from "./activityLogModel.js";
 import { ContractModel } from "./contractModel.js";
 import { PlanModel } from "./planModel.js";
 import { InvoiceModel } from "./invoiceModel.js";
@@ -107,4 +108,4 @@ CustomerModel.hasMany(InvoiceModel, {
   sourceKey: "id",
 });
 
-export { UserModel, RoleModel, PermissionModel, CustomerModel, ContractModel, PaymentModel, InventoryModel, PlanModel, InvoiceModel, RolePermissionModel };
+export { UserModel, RoleModel, PermissionModel, CustomerModel, ContractModel, PaymentModel, InventoryModel, PlanModel, InvoiceModel, RolePermissionModel, ActivityLogModel };

@@ -53,7 +53,7 @@ export class Database {
     try {
       await this.sequelize.authenticate();
       console.log("🟢 MySQL connection established successfully.");
-      // await this.syncModels();
+      //await this.syncModels();
     } catch (error) {
       console.error("🔴 Unable to connect to MySQL:", error.message);
       throw error;
