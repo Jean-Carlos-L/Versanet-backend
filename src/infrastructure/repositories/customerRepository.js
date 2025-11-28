@@ -55,7 +55,9 @@ export class CustomerRepository {
   }
 
   async findById(customerId) {
-    const customerRecord = await CustomerModel.findOne({where: { id: customerId, eliminado: false }});
+    const customerRecord = await CustomerModel.findOne({
+      where: { id: customerId, eliminado: false },
+    });
     if (!customerRecord) {
       throw new Error("Customer not found");
     }
@@ -162,6 +164,9 @@ export class CustomerRepository {
 
   async count({ filters = {} } = {}) {
     const where = { eliminado: false, ...filters };
+    if (filters.createdAt) {
+      where.createdAt = filters.createdAt;
+    }
     const count = await CustomerModel.count({ where });
     return count;
   }

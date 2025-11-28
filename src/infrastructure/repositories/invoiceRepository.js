@@ -9,25 +9,29 @@ import ActivityLogRepository from "./activityLogRepository.js";
 export class InvoiceRepository {
   // Helper method to map invoice record with relations to entity
   _mapToEntityWithRelations(invoiceRecord) {
-    const customer = invoiceRecord.customer ? new CustomerEntity(
-      invoiceRecord.customer.id,
-      invoiceRecord.customer.nombres,
-      invoiceRecord.customer.cedula,
-      invoiceRecord.customer.correo_electronico,
-      invoiceRecord.customer.telefono,
-      invoiceRecord.customer.direccion,
-      invoiceRecord.customer.estado
-    ) : null;
+    const customer = invoiceRecord.customer
+      ? new CustomerEntity(
+          invoiceRecord.customer.id,
+          invoiceRecord.customer.nombres,
+          invoiceRecord.customer.cedula,
+          invoiceRecord.customer.correo_electronico,
+          invoiceRecord.customer.telefono,
+          invoiceRecord.customer.direccion,
+          invoiceRecord.customer.estado
+        )
+      : null;
 
-    const contract = invoiceRecord.contract ? {
-      id: invoiceRecord.contract.id,
-      customerId: invoiceRecord.contract.cliente_id,
-      planId: invoiceRecord.contract.plan_id,
-      startDate: invoiceRecord.contract.fecha_inicio,
-      endDate: invoiceRecord.contract.fecha_fin,
-      equipmentId: invoiceRecord.contract.equipo_id,
-      status: invoiceRecord.contract.estado,
-    } : null;
+    const contract = invoiceRecord.contract
+      ? {
+          id: invoiceRecord.contract.id,
+          customerId: invoiceRecord.contract.cliente_id,
+          planId: invoiceRecord.contract.plan_id,
+          startDate: invoiceRecord.contract.fecha_inicio,
+          endDate: invoiceRecord.contract.fecha_fin,
+          equipmentId: invoiceRecord.contract.equipo_id,
+          status: invoiceRecord.contract.estado,
+        }
+      : null;
 
     return new InvoiceEntity({
       id: invoiceRecord.id,
@@ -129,15 +133,15 @@ export class InvoiceRepository {
       include: [
         {
           model: CustomerModel,
-          as: 'customer',
-          required: false
+          as: "customer",
+          required: false,
         },
         {
           model: ContractModel,
-          as: 'contract',
-          required: false
-        }
-      ]
+          as: "contract",
+          required: false,
+        },
+      ],
     });
     if (!invoiceRecord) {
       throw new Error("Invoice not found");
@@ -146,64 +150,65 @@ export class InvoiceRepository {
   }
 
   async findAll({ filters = {}, offset = 0, limit = 10 } = {}) {
-    const { cliente, contrato, minAmount, maxAmount, ...otherFilters } = filters;
+    const { cliente, contrato, minAmount, maxAmount, ...otherFilters } =
+      filters;
     const where = { eliminado: false, ...otherFilters };
-    
+
     // Add amount range filters
     if (minAmount && maxAmount) {
       where.monto = {
-        [Op.between]: [minAmount, maxAmount]
+        [Op.between]: [minAmount, maxAmount],
       };
     } else if (minAmount) {
       where.monto = {
-        [Op.gte]: minAmount
+        [Op.gte]: minAmount,
       };
     } else if (maxAmount) {
       where.monto = {
-        [Op.lte]: maxAmount
+        [Op.lte]: maxAmount,
       };
     }
-    
+
     // Prepare includes with conditional where clauses
     const includes = [];
-    
+
     // Customer include with optional filtering
     const customerInclude = {
       model: CustomerModel,
-      as: 'customer',
-      required: false
+      as: "customer",
+      required: false,
     };
-    
+
     if (cliente) {
       customerInclude.required = true; // Use INNER JOIN when filtering
       customerInclude.where = {
         [Op.or]: [
           {
             nombres: {
-              [Op.like]: `%${cliente}%`
-            }
+              [Op.like]: `%${cliente}%`,
+            },
           },
           {
             cedula: {
-              [Op.like]: `%${cliente}%`
-            }
-          }
-        ]
+              [Op.like]: `%${cliente}%`,
+            },
+          },
+        ],
       };
     }
     includes.push(customerInclude);
-    
+
     // Contract include with optional filtering
     const contractInclude = {
       model: ContractModel,
-      as: 'contract',
-      required: false
+      as: "contract",
+      required: false,
     };
-    
+
     if (contrato) {
       contractInclude.required = true; // Use INNER JOIN when filtering
       contractInclude.where = {};
-      
+
       if (contrato.id) {
         contractInclude.where.id = contrato.id;
       }
@@ -214,76 +219,87 @@ export class InvoiceRepository {
       where,
       offset,
       limit,
-      include: includes
+      include: includes,
     });
-    return invoiceRecords.map(invoiceRecord => this._mapToEntityWithRelations(invoiceRecord));
+    return invoiceRecords.map((invoiceRecord) =>
+      this._mapToEntityWithRelations(invoiceRecord)
+    );
   }
 
   async count({ filters = {} } = {}) {
-    const { cliente, contrato, minAmount, maxAmount, ...otherFilters } = filters;
-    const where = { eliminado: false, ...otherFilters };
-    
+    const { cliente, contrato, minAmount, maxAmount, ...otherFilters } =
+      filters;
+    const where = { eliminado: false };
+
     if (minAmount && maxAmount) {
       where.monto = {
-        [Op.between]: [minAmount, maxAmount]
+        [Op.between]: [minAmount, maxAmount],
       };
     } else if (minAmount) {
       where.monto = {
-        [Op.gte]: minAmount
+        [Op.gte]: minAmount,
       };
     } else if (maxAmount) {
       where.monto = {
-        [Op.lte]: maxAmount
+        [Op.lte]: maxAmount,
       };
     }
-    
+
+    if (otherFilters.createdAt) {
+      where.createdAt = otherFilters.createdAt;
+    }
+
+    if (otherFilters.status !== undefined) {
+      where.estado = otherFilters.status;
+    }
+
     // Prepare includes with conditional where clauses for count
     const includes = [];
-    
+
     // Customer include with optional filtering
     if (cliente) {
       const customerInclude = {
         model: CustomerModel,
-        as: 'customer',
+        as: "customer",
         required: true,
         where: {
           [Op.or]: [
             {
               nombres: {
-                [Op.like]: `%${cliente}%`
-              }
+                [Op.like]: `%${cliente}%`,
+              },
             },
             {
               cedula: {
-                [Op.like]: `%${cliente}%`
-              }
-            }
-          ]
-        }
+                [Op.like]: `%${cliente}%`,
+              },
+            },
+          ],
+        },
       };
-      
+
       includes.push(customerInclude);
     }
-    
+
     // Contract include with optional filtering
     if (contrato) {
       const contractInclude = {
         model: ContractModel,
-        as: 'contract',
+        as: "contract",
         required: true,
-        where: {}
+        where: {},
       };
-      
+
       if (contrato.id) {
         contractInclude.where.id = contrato.id;
       }
-      
+
       includes.push(contractInclude);
     }
 
-    const count = await InvoiceModel.count({ 
+    const count = await InvoiceModel.count({
       where,
-      include: includes.length > 0 ? includes : undefined
+      include: includes.length > 0 ? includes : undefined,
     });
     return count;
   }
@@ -323,17 +339,19 @@ export class InvoiceRepository {
       include: [
         {
           model: CustomerModel,
-          as: 'customer',
-          required: false
+          as: "customer",
+          required: false,
         },
         {
           model: ContractModel,
-          as: 'contract',
-          required: false
-        }
-      ]
+          as: "contract",
+          required: false,
+        },
+      ],
     });
-    return invoiceRecords.map(invoiceRecord => this._mapToEntityWithRelations(invoiceRecord));
+    return invoiceRecords.map((invoiceRecord) =>
+      this._mapToEntityWithRelations(invoiceRecord)
+    );
   }
 
   async findByContractId(contractId) {
@@ -342,17 +360,19 @@ export class InvoiceRepository {
       include: [
         {
           model: CustomerModel,
-          as: 'customer',
-          required: false
+          as: "customer",
+          required: false,
         },
         {
           model: ContractModel,
-          as: 'contract',
-          required: false
-        }
-      ]
+          as: "contract",
+          required: false,
+        },
+      ],
     });
-    return invoiceRecords.map(invoiceRecord => this._mapToEntityWithRelations(invoiceRecord));
+    return invoiceRecords.map((invoiceRecord) =>
+      this._mapToEntityWithRelations(invoiceRecord)
+    );
   }
 
   async updateStatus(invoiceId, status, actor = null, options = {}) {
@@ -363,15 +383,15 @@ export class InvoiceRepository {
       include: [
         {
           model: CustomerModel,
-          as: 'customer',
-          required: false
+          as: "customer",
+          required: false,
         },
         {
           model: ContractModel,
-          as: 'contract',
-          required: false
-        }
-      ]
+          as: "contract",
+          required: false,
+        },
+      ],
     });
     if (!invoiceRecord) {
       throw new Error("Invoice not found");

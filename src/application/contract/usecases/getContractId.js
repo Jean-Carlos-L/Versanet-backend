@@ -6,7 +6,6 @@ async function getContractById(id) {
     if (!id) throw new Error('Contract id is required');
 
     const contract = await contractRepository.findById(id);
-    // console.log(contract)
     if (!contract) {
         const err = new Error('Contract not found');
         err.status = 404;

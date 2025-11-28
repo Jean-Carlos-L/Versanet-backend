@@ -117,7 +117,6 @@ router.get("/:id", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   try {
-    console.log("Received PUT /:id with body:", req.body);
     let actor = req.session ? req.session.user : null;
     actor = await enrichActor(actor);
     const updated = await editContract(req.params.id, req.body, actor);

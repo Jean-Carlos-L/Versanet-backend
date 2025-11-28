@@ -11,6 +11,6 @@ export class RegisterInvoiceDTO {
     if (isNaN(this.amount) || this.amount < 0) {
       throw new Error("amount debe ser un número válido mayor o igual a 0.");
     }
-    this.status = status !== undefined ? Number(status) : 0; // default pendiente
+    this.status = status ? status : "pendiente"; // default pendiente
   }
 }
