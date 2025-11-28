@@ -1,6 +1,7 @@
 import RoleEntity from "../../domain/entities/Role.js";
 import PermissionEntity from "../../domain/entities/Permission.js";
 import { RoleModel, PermissionModel } from "../models/index.js";
+import ActivityLogRepository from "./activityLogRepository.js";
 
 export class RoleRepository {
   async findByCode(code) {
@@ -102,8 +103,9 @@ export class RoleRepository {
     });
   }
 
-  async create(roleData) {
-    const t = await RoleModel.sequelize.transaction();
+  async create(roleData, actor = null, options = {}) {
+    const useExternalTx = !!options.transaction;
+    const t = options.transaction || (await RoleModel.sequelize.transaction());
     try {
       // Create the role
       const roleRecord = await RoleModel.create(
@@ -151,9 +153,9 @@ export class RoleRepository {
         transaction: t, // Reuse transaction for consistency
       });
 
-      await t.commit();
+      if (!useExternalTx) await t.commit();
 
-      return new RoleEntity({
+      const roleEntity = new RoleEntity({
         id: createdRole.id,
         description: createdRole.descripcion,
         status: createdRole.estado,
@@ -166,15 +168,35 @@ export class RoleRepository {
             })
         ),
       });
+
+      try {
+        await ActivityLogRepository.create(
+          {
+            actor_id: actor?.id || null,
+            actor_name: actor?.nombres || actor?.name || actor?.email || null,
+            action: "create",
+            entity: "role",
+            entity_id: roleEntity.id,
+            details: `${actor?.nombres || actor?.name || actor?.email || 'Usuario desconocido'} creó rol: id=${roleEntity.id}`,
+            metadata: { data: roleEntity },
+          },
+          { transaction: t }
+        );
+      } catch (e) {
+        console.error("roleRepository.create - activity log failed:", e && e.message ? e.message : e);
+      }
+
+      return roleEntity;
     } catch (error) {
-      await t.rollback();
-      console.error("Error creating role:", error.message);
+      if (!useExternalTx) await t.rollback();
+      console.error("Error creating role:", error && error.message ? error.message : error);
       throw error;
     }
   }
 
-  async update(roleId, roleData) {
-    const t = await RoleModel.sequelize.transaction();
+  async update(roleId, roleData, actor = null, options = {}) {
+    const useExternalTx = !!options.transaction;
+    const t = options.transaction || (await RoleModel.sequelize.transaction());
     try {
       // Update the role
       const [updatedRowsCount] = await RoleModel.update(
@@ -253,9 +275,9 @@ export class RoleRepository {
         transaction: t,
       });
 
-      await t.commit();
+      if (!useExternalTx) await t.commit();
 
-      return new RoleEntity({
+      const roleEntity = new RoleEntity({
         id: finalRoleRecord.id,
         description: finalRoleRecord.descripcion,
         status: finalRoleRecord.estado,
@@ -268,18 +290,60 @@ export class RoleRepository {
             })
         ),
       });
+
+      try {
+        await ActivityLogRepository.create(
+          {
+            actor_id: actor?.id || null,
+            actor_name: actor?.nombres || actor?.name || actor?.email || null,
+            action: "update",
+            entity: "role",
+            entity_id: roleEntity.id,
+            details: `${actor?.nombres || actor?.name || actor?.email || 'Usuario desconocido'} actualizó rol: id=${roleEntity.id}`,
+            metadata: { data: roleEntity },
+          },
+          { transaction: t }
+        );
+      } catch (e) {
+        console.error("roleRepository.update - activity log failed:", e && e.message ? e.message : e);
+      }
+
+      return roleEntity;
     } catch (error) {
-      await t.rollback();
-      console.error("Error updating role:", error.message);
+      if (!useExternalTx) await t.rollback();
+      console.error("Error updating role:", error && error.message ? error.message : error);
       throw error;
     }
   }
 
-  async delete(roleId) {
-    const deletedRowsCount = await RoleModel.update(
+  async delete(roleId, actor = null, options = {}) {
+    const updateOpts = {};
+    if (options.transaction) updateOpts.transaction = options.transaction;
+
+    const [deletedRowsCount] = await RoleModel.update(
       { eliminado: true },
-      { where: { id: roleId, eliminado: false } }
+      { where: { id: roleId, eliminado: false }, ...updateOpts }
     );
-    return deletedRowsCount > 0;
+
+    const success = deletedRowsCount > 0;
+
+    try {
+      await ActivityLogRepository.create(
+        {
+          actor_id: actor?.id || null,
+          actor_name: actor?.nombres || actor?.name || actor?.email || null,
+          action: "delete",
+          entity: "role",
+          entity_id: roleId,
+          details: `${actor?.nombres || actor?.name || actor?.email || 'Usuario desconocido'} eliminó rol: id=${roleId}`,
+          metadata: { roleId, success },
+        },
+        { transaction: options.transaction }
+      );
+    } catch (e) {
+      console.error("roleRepository.delete - activity log failed:", e && e.message ? e.message : e);
+    }
+
+    return success;
   }
 }

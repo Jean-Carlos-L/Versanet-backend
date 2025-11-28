@@ -4,6 +4,7 @@ import { InvoiceModel } from "../models/invoiceModel.js";
 import { CustomerModel } from "../models/customerModel.js";
 import { ContractModel } from "../models/contractModel.js";
 import { Op } from "sequelize";
+import ActivityLogRepository from "./activityLogRepository.js";
 
 export class InvoiceRepository {
   // Helper method to map invoice record with relations to entity
@@ -43,14 +44,38 @@ export class InvoiceRepository {
       contract: contract,
     });
   }
-  async create(invoiceData) {
-    const invoiceRecord = await InvoiceModel.create({
-      cliente_id: invoiceData.customerId,
-      contrato_id: invoiceData.contractId,
-      fecha_facturacion: invoiceData.invoiceDate,
-      monto: invoiceData.amount,
-      estado: invoiceData.status,
-    });
+  async create(invoiceData, actor = null, options = {}) {
+    const createOpts = {};
+    if (options.transaction) createOpts.transaction = options.transaction;
+
+    const invoiceRecord = await InvoiceModel.create(
+      {
+        cliente_id: invoiceData.customerId,
+        contrato_id: invoiceData.contractId,
+        fecha_facturacion: invoiceData.invoiceDate,
+        monto: invoiceData.amount,
+        estado: invoiceData.status,
+      },
+      createOpts
+    );
+
+    try {
+      if (actor) {
+        const actorName = actor.nombres || actor.name || actor.email || null;
+        const details = `Factura creada: id=${invoiceRecord.id}, monto=${invoiceRecord.monto}`;
+        await ActivityLogRepository.create({
+          actor_id: actor.id || null,
+          actor_name: actorName,
+          action: "create",
+          entity: "invoice",
+          entity_id: invoiceRecord.id,
+          details,
+        }, { transaction: options.transaction });
+      }
+    } catch (e) {
+      console.error('Activity log (invoice create) failed:', e && e.message ? e.message : e);
+    }
+
     return new InvoiceEntity({
       id: invoiceRecord.id,
       customerId: invoiceRecord.cliente_id,
@@ -61,7 +86,10 @@ export class InvoiceRepository {
     });
   }
 
-  async update(invoiceId, invoiceData) {
+  async update(invoiceId, invoiceData, actor = null, options = {}) {
+    const updateOpts = {};
+    if (options.transaction) updateOpts.transaction = options.transaction;
+
     const invoiceRecord = await InvoiceModel.findByPk(invoiceId);
     if (!invoiceRecord) {
       throw new Error("Invoice not found");
@@ -71,8 +99,24 @@ export class InvoiceRepository {
     invoiceRecord.fecha_facturacion = invoiceData.invoiceDate;
     invoiceRecord.monto = invoiceData.amount;
     invoiceRecord.estado = invoiceData.status;
+    await invoiceRecord.save(updateOpts);
 
-    await invoiceRecord.save();
+    try {
+      if (actor) {
+        const actorName = actor.nombres || actor.name || actor.email || null;
+        const details = `Factura actualizada: id=${invoiceId}, monto=${invoiceRecord.monto}`;
+        await ActivityLogRepository.create({
+          actor_id: actor.id || null,
+          actor_name: actorName,
+          action: "update",
+          entity: "invoice",
+          entity_id: invoiceId,
+          details,
+        }, { transaction: options.transaction });
+      }
+    } catch (e) {
+      console.error('Activity log (invoice update) failed:', e && e.message ? e.message : e);
+    }
     return new InvoiceEntity({
       id: invoiceRecord.id,
       customerId: invoiceRecord.cliente_id,
@@ -260,13 +304,32 @@ export class InvoiceRepository {
     return count;
   }
 
-  async delete(invoiceId) {
+  async delete(invoiceId, actor = null, options = {}) {
+    const updateOpts = {};
+    if (options.transaction) updateOpts.transaction = options.transaction;
+
     const invoiceRecord = await InvoiceModel.findByPk(invoiceId);
     if (!invoiceRecord) {
       throw new Error("Invoice not found");
     }
     invoiceRecord.eliminado = true;
-    await invoiceRecord.save();
+    await invoiceRecord.save(updateOpts);
+
+    try {
+      const actorName = actor?.nombres || actor?.name || actor?.email || null;
+      const details = `Factura eliminada: id=${invoiceRecord.id}, monto=${invoiceRecord.monto}`;
+      await ActivityLogRepository.create({
+        actor_id: actor?.id || null,
+        actor_name: actorName,
+        action: "delete",
+        entity: "invoice",
+        entity_id: invoiceRecord.id,
+        details,
+      }, { transaction: options.transaction });
+    } catch (e) {
+      console.error('Activity log (invoice delete) failed:', e && e.message ? e.message : e);
+    }
+
     return true;
   }
 
@@ -312,7 +375,10 @@ export class InvoiceRepository {
     );
   }
 
-  async updateStatus(invoiceId, status) {
+  async updateStatus(invoiceId, status, actor = null, options = {}) {
+    const updateOpts = {};
+    if (options.transaction) updateOpts.transaction = options.transaction;
+
     const invoiceRecord = await InvoiceModel.findByPk(invoiceId, {
       include: [
         {
@@ -331,7 +397,25 @@ export class InvoiceRepository {
       throw new Error("Invoice not found");
     }
     invoiceRecord.estado = status;
-    await invoiceRecord.save();
+    await invoiceRecord.save(updateOpts);
+
+    try {
+      if (actor) {
+        const actorName = actor.nombres || actor.name || actor.email || null;
+        const details = `Factura estado actualizado: id=${invoiceId}, estado=${status}`;
+        await ActivityLogRepository.create({
+          actor_id: actor.id || null,
+          actor_name: actorName,
+          action: "update-status",
+          entity: "invoice",
+          entity_id: invoiceId,
+          details,
+        }, { transaction: options.transaction });
+      }
+    } catch (e) {
+      console.error('Activity log (invoice status) failed:', e && e.message ? e.message : e);
+    }
+
     return this._mapToEntityWithRelations(invoiceRecord);
   }
 }

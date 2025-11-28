@@ -1,9 +1,10 @@
 import { CustomerRepository } from "../../../infrastructure/repositories/customerRepository.js";
 import { EditCustomerDTO } from "../../../domain/dtos/editCustomerDTO.js";
+import { CustomerModel } from "../../../infrastructure/models/customerModel.js";
 
 const customerRepository = new CustomerRepository();
 
-async function editCustomer(customerId, userInput) {
+async function editCustomer(customerId, userInput, actor = null) {
   const customerDTO = new EditCustomerDTO(userInput);
 
   let existingCustomer = await customerRepository.findById(customerId);
@@ -22,7 +23,20 @@ async function editCustomer(customerId, userInput) {
     throw error;
   }
 
-  const result = await customerRepository.update(customerId, customerDTO);
+  // Use transaction to ensure update + audit are atomic
+  if (CustomerModel && CustomerModel.sequelize) {
+    const t = await CustomerModel.sequelize.transaction();
+    try {
+      const result = await customerRepository.update(customerId, customerDTO, actor, { transaction: t });
+      await t.commit();
+      return result;
+    } catch (e) {
+      await t.rollback();
+      throw e;
+    }
+  }
+
+  const result = await customerRepository.update(customerId, customerDTO, actor);
   return result;
 }
 

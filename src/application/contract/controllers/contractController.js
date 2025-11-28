@@ -8,8 +8,28 @@ import {
   toggleStatus,
 } from "../usecases/index.js";
 import { buildRegisterContractValidatorChain } from "../../../infra_http/middlewares/validators/contracts/registerContractValidator.js";
+import { UserModel } from "../../../infrastructure/models/index.js";
+import ActivityLogRepository from "../../../infrastructure/repositories/activityLogRepository.js";
 
 const router = express.Router();
+
+async function enrichActor(actor) {
+  if (!actor) return null;
+  if (actor.nombres || actor.name) return actor;
+  try {
+    if (actor.id) {
+      const dbUser = await UserModel.findOne({ where: { id: actor.id, eliminado: false }, attributes: { exclude: ["contrasena", "eliminado"] } });
+      if (dbUser) return { ...actor, ...dbUser.toJSON() };
+    }
+    if (actor.email) {
+      const dbUser = await UserModel.findOne({ where: { correo_electronico: actor.email, eliminado: false }, attributes: { exclude: ["contrasena", "eliminado"] } });
+      if (dbUser) return { ...actor, ...dbUser.toJSON() };
+    }
+  } catch (e) {
+    console.error('enrichActor (contracts) - failed to load user from DB', e && e.message ? e.message : e);
+  }
+  return actor;
+}
 
 router.post("/", async (req, res) => {
   const userInput = req.body;
@@ -19,7 +39,23 @@ router.post("/", async (req, res) => {
     return res.status(400).json({ error: validationResult.error });
   }
   try {
-    const newContract = await registerContract(userInput);
+    let actor = req.session ? req.session.user : null;
+    actor = await enrichActor(actor);
+    const newContract = await registerContract(userInput, actor);
+    try {
+      const actorName = actor?.nombres || actor?.name || actor?.email || actor?.id || null;
+      await ActivityLogRepository.create({
+        actor_id: actor?.id || null,
+        actor_name: actorName,
+        action: "create",
+        entity: "contract",
+        entity_id: newContract?.id || null,
+        details: `${actorName || 'Usuario desconocido'} creó contrato via API: id=${newContract?.id}`,
+        metadata: { requestBody: userInput, result: newContract },
+      });
+    } catch (e) {
+      console.error('contractController POST - activity log failed:', e && e.message ? e.message : e);
+    }
     res.status(201).json(newContract);
   } catch (err) {
     res.status(err.status || 400).json({ error: err.message });
@@ -81,7 +117,23 @@ router.get("/:id", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   try {
-    const updated = await editContract(req.params.id, req.body);
+    let actor = req.session ? req.session.user : null;
+    actor = await enrichActor(actor);
+    const updated = await editContract(req.params.id, req.body, actor);
+    try {
+      const actorName = actor?.nombres || actor?.name || actor?.email || actor?.id || null;
+      await ActivityLogRepository.create({
+        actor_id: actor?.id || null,
+        actor_name: actorName,
+        action: "update",
+        entity: "contract",
+        entity_id: updated?.id || req.params.id,
+        details: `${actorName || 'Usuario desconocido'} actualizó contrato via API: id=${req.params.id}`,
+        metadata: { requestBody: req.body, result: updated },
+      });
+    } catch (e) {
+      console.error('contractController PUT - activity log failed:', e && e.message ? e.message : e);
+    }
     res.status(200).json(updated);
   } catch (err) {
     console.error("Error in contractController PUT /:id:", err);
@@ -92,7 +144,23 @@ router.put("/:id", async (req, res) => {
 
 router.patch("/:id/toggle-status", async (req, res) => {
   try {
-    const result = await toggleStatus(req.params.id);
+    let actor = req.session ? req.session.user : null;
+    actor = await enrichActor(actor);
+    const result = await toggleStatus(req.params.id, actor);
+    try {
+      const actorName = actor?.nombres || actor?.name || actor?.email || actor?.id || null;
+      await ActivityLogRepository.create({
+        actor_id: actor?.id || null,
+        actor_name: actorName,
+        action: "toggle-status",
+        entity: "contract",
+        entity_id: req.params.id,
+        details: `${actorName || 'Usuario desconocido'} cambió estado del contrato via API: id=${req.params.id}`,
+        metadata: { requestParams: { id: req.params.id }, result },
+      });
+    } catch (e) {
+      console.error('contractController TOGGLE - activity log failed:', e && e.message ? e.message : e);
+    }
     res.status(200).json(result);
   } catch (err) {
     if (err.status === 404) return res.status(404).json({ error: err.message });
@@ -102,7 +170,23 @@ router.patch("/:id/toggle-status", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   try {
-    const result = await deleteContract(req.params.id);
+    let actor = req.session ? req.session.user : null;
+    actor = await enrichActor(actor);
+    const result = await deleteContract(req.params.id, actor);
+    try {
+      const actorName = actor?.nombres || actor?.name || actor?.email || actor?.id || null;
+      await ActivityLogRepository.create({
+        actor_id: actor?.id || null,
+        actor_name: actorName,
+        action: "delete",
+        entity: "contract",
+        entity_id: req.params.id,
+        details: `${actorName || 'Usuario desconocido'} eliminó contrato via API: id=${req.params.id}`,
+        metadata: { requestParams: { id: req.params.id }, result },
+      });
+    } catch (e) {
+      console.error('contractController DELETE - activity log failed:', e && e.message ? e.message : e);
+    }
     res.status(200).json(result);
   } catch (err) {
     if (err.status === 404) return res.status(404).json({ error: err.message });

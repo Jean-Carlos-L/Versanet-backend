@@ -1,9 +1,10 @@
 import { EditRoleDTO } from "../../../domain/dtos/editRoleDTO.js";
 import { RoleRepository } from "../../../infrastructure/repositories/roleRepository.js";
+import { RoleModel } from "../../../infrastructure/models/index.js";
 
 const roleRepository = new RoleRepository();
 
-async function editRole(roleId, userInput) {
+async function editRole(roleId, userInput, actor = null) {
   const roleDTO = new EditRoleDTO(userInput);
 
   const existingRole = await roleRepository.findById(roleId);
@@ -22,8 +23,19 @@ async function editRole(roleId, userInput) {
     }
   }
 
-  const result = await roleRepository.update(roleId, roleDTO);
-  return result;
+  const t = await RoleModel.sequelize.transaction();
+  try {
+    const result = await roleRepository.update(roleId, roleDTO, actor, { transaction: t });
+    await t.commit();
+    return result;
+  } catch (error) {
+    try {
+      await t.rollback();
+    } catch (rbErr) {
+      console.error('editRole - rollback failed:', rbErr && rbErr.message ? rbErr.message : rbErr);
+    }
+    throw error;
+  }
 }
 
 export { editRole };
