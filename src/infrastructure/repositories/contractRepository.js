@@ -5,7 +5,7 @@ import {
   PlanModel,
   InventoryModel,
 } from "../models/index.js";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 
 export class ContractRepository {
   async create(contractData) {
@@ -361,9 +361,9 @@ export class ContractRepository {
   }
 
   async update(id, data) {
-   const contractRecord = await ContractModel.findByPk(id);
+    const contractRecord = await ContractModel.findByPk(id);
     if (!contractRecord) {
-     throw new Error("Contract not found");
+      throw new Error("Contract not found");
     }
 
     contractRecord.cliente_id = data.customer_id;
@@ -371,7 +371,8 @@ export class ContractRepository {
     contractRecord.fecha_inicio = data.start_date;
     contractRecord.fecha_fin = data.end_date;
     contractRecord.equipo_id = data.inventory_id;
-    contractRecord.estado = data.status !== undefined ? data.status : contractRecord.estado;
+    contractRecord.estado =
+      data.status !== undefined ? data.status : contractRecord.estado;
 
     await contractRecord.save();
     return new ContractEntity({
@@ -394,7 +395,8 @@ export class ContractRepository {
       throw new Error("Contract not found");
     }
 
-    contractRecord.estado = contractRecord.estado === "activo" ? "inactivo" : "activo";
+    contractRecord.estado =
+      contractRecord.estado === "activo" ? "inactivo" : "activo";
     await contractRecord.save();
 
     return new ContractEntity({
@@ -435,7 +437,65 @@ export class ContractRepository {
     if (clienteId) where.cliente_id = clienteId;
     if (planId) where.plan_id = planId;
     if (estado != null) where.estado = estado;
+    if (filters.createdAt) {
+      where.createdAt = filters.createdAt;
+    }
 
     return await ContractModel.count({ where });
+  }
+
+  async getPlanDistribution() {
+    try {
+      const distribution = await ContractModel.findAll({
+        attributes: [
+          // Contamos cuántos contratos hay por plan
+          [
+            ContractModel.sequelize.fn(
+              "COUNT",
+              ContractModel.sequelize.col("Contract.plan_id")
+            ),
+            "count",
+          ],
+
+          // Traemos el ID y descripción del plan usando alias claros
+          [ContractModel.sequelize.col("plan.id"), "planId"],
+          [ContractModel.sequelize.col("plan.descripcion"), "planName"],
+        ],
+        include: [
+          {
+            model: PlanModel,
+            as: "plan",
+            attributes: [], // No traemos columnas extras, ya las traemos con col()
+            required: true,
+            where: { eliminado: false },
+          },
+        ],
+        where: {
+          eliminado: false,
+          estado: "activo",
+        },
+        group: ["Contract.plan_id", "plan.id", "plan.descripcion"],
+        raw: true, // ← ¡Fundamental para que sea fácil de leer!
+        order: [
+          [
+            ContractModel.sequelize.fn(
+              "COUNT",
+              ContractModel.sequelize.col("Contract.plan_id")
+            ),
+            "DESC",
+          ],
+        ],
+      });
+
+      // Con raw: true → resultado plano y súper fácil de mapear
+      return distribution.map((item) => ({
+        planId: item.planId,
+        planName: item.planName,
+        count: parseInt(item.count, 10),
+      }));
+    } catch (error) {
+      console.error("Error al obtener distribución de planes:", error);
+      throw error;
+    }
   }
 }

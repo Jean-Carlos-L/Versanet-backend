@@ -11,7 +11,6 @@ const userRepository = new UserRepository();
 async function editUser(userId, userInput) {
   const userDTO = new EditUserDTO(userInput);
   let existingUser = await userRepository.findById(userId);
-  console.log("Existing User:", existingUser);
   if (!existingUser) {
     const error = new Error("Usuario no encontrado.");
     error.status = 404;

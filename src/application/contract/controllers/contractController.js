@@ -81,7 +81,6 @@ router.get("/:id", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   try {
-    console.log("Received PUT /:id with body:", req.body);
     const updated = await editContract(req.params.id, req.body);
     res.status(200).json(updated);
   } catch (err) {

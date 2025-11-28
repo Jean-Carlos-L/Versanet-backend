@@ -11,7 +11,6 @@ async function getAllContracts({ page = 1, pageSize = 10, offset = 0, limit = 10
 
 	const result = await contractRepository.findAndCountAll({ filters, offset: off, limit: lim });
 	const contracts = result.rows;
-	console.log(contracts)
 	const total = result.count;
 
 	return { contracts, total };
