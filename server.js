@@ -18,6 +18,7 @@ import planRoutes from "./src/application/plans/controllers/planController.js";
 import invoiceRoutes from "./src/application/invoice/controllers/invoiceController.js";
 import inventoryRoutes from "./src/application/inventory/controllers/inventoryController.js";
 import contractRoutes from "./src/application/contract/controllers/contractController.js";
+import paymentRoutes from "./src/application/payments/controllers/paymentController.js";
 
 // 🔹 Middlewares globales
 import { errorHandler } from "./src/infra_http/middlewares/errorHandler.js";
@@ -71,6 +72,7 @@ app.use("/api/plans", planRoutes);
 app.use("/api/invoices", invoiceRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/contracts", contractRoutes);
+app.use("/api/payments", paymentRoutes);
 
 // ===== Error handling =====
 app.use(errorHandler);

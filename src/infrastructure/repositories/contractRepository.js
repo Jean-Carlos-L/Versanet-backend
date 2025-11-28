@@ -436,8 +436,6 @@ export class ContractRepository {
     if (planId) where.plan_id = planId;
     if (estado != null) where.estado = estado;
 
-    console.log("ContractRepository.count - where:", where);
-
     return await ContractModel.count({ where });
   }
 }
