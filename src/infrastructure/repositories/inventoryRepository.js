@@ -35,7 +35,6 @@ export class InventoryRepository {
 
   async findAndCountAll({ filters = {}, offset, limit } = {}) {
     const where = { eliminado: false };
-    console.log("Filters in repository:", filters);
     if (filters.referencia && filters.referencia.trim()) {
       where.referencia = { [Op.like]: `%${filters.referencia.trim()}%` };
     }

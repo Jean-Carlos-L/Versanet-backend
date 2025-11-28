@@ -96,31 +96,19 @@ class ValidInvoiceDateHandler extends Handler {
           error: "Invoice date must be in YYYY-MM-DD format",
         };
       }
-
-      const invoiceDate = new Date(body.invoiceDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // Set to start of today
-
-      if (isNaN(invoiceDate.getTime())) {
-        return { ok: false, error: "Invalid invoice date" };
-      }
-
-      if (invoiceDate < today) {
-        return {
-          ok: false,
-          error: "Invoice date must be today or in the future",
-        };
-      }
     }
     return super.handle(body);
   }
 }
+
 class ValidStatusHandler extends Handler {
   async handle(body) {
-    if (body.status !== undefined) {
-      const status = parseInt(body.status, 10);
-      if (![0, 1].includes(status)) {
-        return { ok: false, error: "Status must be 0 (pending) or 1 (paid)" };
+    if (body.status) {
+      if (!["pendiente", "pagada", "cancelada"].includes(body.status)) {
+        return {
+          ok: false,
+          error: "Status must be 'pendiente', 'pagada', or 'cancelada'",
+        };
       }
     }
     return super.handle(body);

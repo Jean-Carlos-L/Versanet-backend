@@ -5,7 +5,6 @@ const roleRepository = new RoleRepository();
 
 async function editRole(roleId, userInput) {
   const roleDTO = new EditRoleDTO(userInput);
-  console.log(roleDTO);
 
   const existingRole = await roleRepository.findById(roleId);
   if (!existingRole) {
