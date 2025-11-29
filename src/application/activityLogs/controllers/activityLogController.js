@@ -1,6 +1,5 @@
 import express from "express";
 import { listActivityLogs } from "../usecases/listActivityLogs.js";
-import { authMiddleware } from "../../../infra_http/middlewares/authMiddleware.js";
 import ActivityLogRepository from "../../../infrastructure/repositories/activityLogRepository.js";
 import { UserModel } from "../../../infrastructure/models/index.js";
 const router = express.Router();
