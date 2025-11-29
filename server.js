@@ -74,6 +74,7 @@ app.use("/api/inventory", inventoryRoutes);
 app.use("/api/contracts", contractRoutes);
 app.use("/api/activity-logs", activityLogRoutes);
 
+
 // ===== Error handling =====
 app.use(errorHandler);
 
