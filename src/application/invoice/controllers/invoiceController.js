@@ -111,6 +111,7 @@ router.post("/", async (req, res) => {
     }
     res.status(201).json(newInvoice);
   } catch (err) {
+    console.error(err);
     res.status(err.status || 400).json({ error: err.message });
   }
 });
