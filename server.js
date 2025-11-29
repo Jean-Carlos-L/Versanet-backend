@@ -78,6 +78,7 @@ app.use("/api/activity-logs", activityLogRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/stats", statsRoutes);
 
+
 // ===== Error handling =====
 app.use(errorHandler);
 

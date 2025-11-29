@@ -1,12 +1,11 @@
 import express from "express";
 import { listActivityLogs } from "../usecases/listActivityLogs.js";
-import { authMiddleware } from "../../../infra_http/middlewares/authMiddleware.js";
 import ActivityLogRepository from "../../../infrastructure/repositories/activityLogRepository.js";
-
+import { UserModel } from "../../../infrastructure/models/index.js";
 const router = express.Router();
 
 // Basic enrichActor helper reused pattern
-import { UserModel } from "../../../infrastructure/models/index.js";
+
 async function enrichActor(actor) {
   if (!actor) return null;
   if (actor.nombres || actor.name) return actor;
@@ -26,7 +25,7 @@ async function enrichActor(actor) {
 }
 
 // GET /api/activity-logs
-router.get("/", authMiddleware, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     // Optionally require a permission here: e.g. check req.session.user.role.permissions
     let actor = req.session ? req.session.user : null;
@@ -50,7 +49,7 @@ router.get("/", authMiddleware, async (req, res) => {
 });
 
 // Optional detail endpoint
-router.get("/:id", authMiddleware, async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const rec = await ActivityLogRepository.findAll({ filters: { id }, limit: 1, offset: 0 });
