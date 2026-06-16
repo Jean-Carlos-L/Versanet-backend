@@ -1,0 +1,6 @@
+export const {
+  MIKROTIK_HOST,
+  MIKROTIK_USER,
+  MIKROTIK_PASSWORD,
+  MIKROTIK_PORT
+} = process.env;
